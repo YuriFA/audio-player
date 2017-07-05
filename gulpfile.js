@@ -30,7 +30,7 @@ gulp.task('scripts', () => {
 
 gulp.task('watch', () => {
   gulp.watch('src/js/**/*.js', ['scripts']);
-  gulp.watch('src/sass/**/*.sass', ['styles']);
+  gulp.watch('src/sass/**/*.scss', ['styles']);
 });
 
 gulp.task('default', ['watch']);

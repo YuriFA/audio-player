@@ -6,7 +6,6 @@ import EventEmmiter from './utils/EventEmmiter';
 const PLAYING_TIME = 5; //for test
 
 export default class AudioPlayer extends EventEmmiter {
-    // TODO: Create simple audio player with Web Audio API
     constructor(node, playlist, params = {}) {
         super();
 
@@ -28,6 +27,13 @@ export default class AudioPlayer extends EventEmmiter {
         return this._playback.playing;
     }
 
+    set volume(value) {
+        if(value > 1 && value < 0) {
+            throw Error('Volume must be in range from 0 to 1');
+        }
+        this._gain.gain.value = value; 
+    }
+
     play() {
         if(this._playback.playing) {
             return this;
@@ -44,7 +50,12 @@ export default class AudioPlayer extends EventEmmiter {
         return this;
     }
 
-    stop() {}
+    stop() {
+        this._playback.source.stop();
+        this._resetPlaybackInfo();
+
+        return this;
+    }
 
     pause() {
         if(this._playback.playing && this._playback.source) {
@@ -55,25 +66,25 @@ export default class AudioPlayer extends EventEmmiter {
         }
         return this;
     }
-
+    // TODO: Fix bug with double clicking error (async loading)
     playNext() {
         if(this.isPlaying && this._playback.source) {
-            this._playback.source.stop();
+            this.stop();
         }
 
         this.currentTrackIndex += 1;
-        this._resetPlaybackInfo();
         this.play();
+        return this;
     }
 
     playPrev() {
         if(this.isPlaying && this._playback.source) {
-            this._playback.source.stop();
+            this.stop();
         }
 
         this.currentTrackIndex -= 1;
-        this._resetPlaybackInfo();
         this.play();
+        return this;
     }
 
     _resetPlaybackInfo() {
