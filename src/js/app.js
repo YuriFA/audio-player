@@ -39,6 +39,8 @@ playNextBtn.addEventListener('click', (e) => {
 });
 
 playPrevBtn.addEventListener('click', (e) => {
+    console.log('PREV', playPrevBtn);
+    playBtn.classList.add('player-controls__btn_pause');
     player.playPrev();
 });
 

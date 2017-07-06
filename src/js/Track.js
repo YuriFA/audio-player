@@ -4,6 +4,7 @@ export default class Track {
     constructor(src, name='') {
         this._src = src;
         this._name = name;
+        this._buffer = null;
     }
 
     get src() {
@@ -12,5 +13,14 @@ export default class Track {
 
     get name() {
         return this._name;
+    }
+
+    set buffer(buffer) {
+        this._buffer = buffer;
+        return this;
+    }
+
+    get buffer() {
+        return this._buffer;
     }
 };

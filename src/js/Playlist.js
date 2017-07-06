@@ -11,6 +11,15 @@ export default class Playlist {
         return this._tracks;
     }
 
+    getTrack(id) {
+        const track = this._tracks[id];
+        if(track) {
+            return track;
+        } else {
+            throw Error(`Track with id=${id} dosen't exist in playlist`);
+        }
+    }
+
     addTrack(src, name = '') {
         const track = new Track(src, name);
         this.tracks.push(track);

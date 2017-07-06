@@ -1,6 +1,7 @@
 "use strict";
 
 import Playlist from './Playlist';
+import Track from './Track';
 import EventEmmiter from './utils/EventEmmiter';
 
 const PLAYING_TIME = 5; //for test
@@ -39,12 +40,17 @@ export default class AudioPlayer extends EventEmmiter {
             return this;
         }
         
-        if(this._playback.track && this._playback.buffer) {
+        console.log(this.currentTrackIndex);
+        if(!this._playback.track) {
+            this._playback.track = this.playlist.getTrack(this.currentTrackIndex);
+        }
+        
+        if(this._playback.track.buffer) {
             console.log('RESUME');
             this._startPlayback();
         } else {
-            console.log(this.playlist.tracks[this.currentTrackIndex]);
-            this._loadTrack(this.playlist.tracks[this.currentTrackIndex]);
+            console.log('LOADING TRACK');
+            this._loadTrack();
         }
 
         return this;
@@ -103,22 +109,21 @@ export default class AudioPlayer extends EventEmmiter {
         return this;
     }
 
-    _loadTrack(track) {
+    _loadTrack() {
         if(this._playback.loading && this._playback.track) {
             return this;
         }
 
-        let { src } = track;
+        const track = this._playback.track;
         let xhr = new XMLHttpRequest();
         this._playback.loading = true;
-        this._playback.track = track;
 
-        xhr.open('GET', src, true);
+        xhr.open('GET', track.src, true);
         xhr.responseType = 'arraybuffer';
         xhr.addEventListener('load', (e) => {
             this._ctx.decodeAudioData(xhr.response,
                 (decodedArrayBuffer) => {
-                    this._playback.buffer = decodedArrayBuffer;
+                    track.buffer = decodedArrayBuffer;
                     this._playback.loading = false;
                     this.emit('track:load');
                 }, (e) => {
@@ -131,27 +136,29 @@ export default class AudioPlayer extends EventEmmiter {
         return this;
     }
 
-    _setNextTrack() {
-
+    _setTrack(track) {
+        this._playback.track = track;
+        return this;
     }
 
     _startPlayback() {
+        if(this.isPlaying) {
+            console.log('ALREADY PLAYING!');
+            return this;
+        }
+
         const playback = this._playback;
         playback.startTime = this._ctx.currentTime;
 
         playback.source = this._ctx.createBufferSource();
         playback.source.connect(this._gain);
-        playback.source.buffer = playback.buffer;
-        playback.source.start(0, playback.offset % playback.buffer.duration);
-        console.log('PLAYING');
-        playback.playing = true;
+        playback.source.buffer = playback.track.buffer;
 
+        console.log(`PLAYING - ${playback.track.src}`);
+        playback.playing = true;
+        playback.source.start(0, playback.offset % playback.source.buffer.duration);
         playback.source.addEventListener('ended', (e) => {
-            // const source = e.target.buffer;
-            // console.log(this._ctx.currentTime - (this._playback.startTime + source.buffer.duration));
-            // may be bugs
-            if(this.isPlaying) {
-                //isPlaying == not paused
+            if(this.isPlaying && e.target.buffer === this._playback.source.buffer) {
                 console.log('TRACK ENDED');
                 this.playNext();
             }
