@@ -19,9 +19,6 @@ export default class AudioPlayer extends EventEmmiter {
         this._gain = null;
         this._createAudioApiNodes();
         this._gain.gain.value = 0.04;
-
-        //Subscribe
-        this.on('track:load', this._startPlayback);
     }
 
     get isPlaying() {
@@ -36,60 +33,67 @@ export default class AudioPlayer extends EventEmmiter {
     }
 
     play() {
-        if(this._playback.playing) {
+        if(this.isPlaying) {
             return this;
         }
-        
-        console.log(this.currentTrackIndex);
+
         if(!this._playback.track) {
             this._playback.track = this.playlist.getTrack(this.currentTrackIndex);
         }
-        
-        if(this._playback.track.buffer) {
-            console.log('RESUME');
-            this._startPlayback();
+        console.log(`Playing track id=${this.currentTrackIndex}`);
+
+        const track = this._playback.track;
+        if(track.audio && track.isBuffered()) {
+            track.audio.play();
+            this._playback.playing = true;
         } else {
-            console.log('LOADING TRACK');
-            this._loadTrack();
+            track.load();
+            //Subscribe
+            track.on('track:canplay', this._startPlayback.bind(this));
+            track.on('track:ended', this.playNext.bind(this));
         }
 
         return this;
     }
 
     stop() {
-        this._playback.source.stop();
+        this._playback.playing = false;
+        const track = this._playback.track;
+        track.audio.pause();
+        track.audio.currentTime = 0;
         this._resetPlaybackInfo();
 
         return this;
     }
 
     pause() {
-        if(this._playback.playing && this._playback.source) {
-            this._playback.playing = false;
-            this._playback.source.stop();
-            this._playback.offset += this._ctx.currentTime - this._playback.startTime;
-            console.log('PAUSED');
-        }
+        this._playback.playing = false;
+        const track = this._playback.track;
+        track.audio.pause();
+        console.log('PAUSED');
+
         return this;
     }
-    // TODO: Fix bug with double clicking error (async loading)
+
     playNext() {
-        if(this.isPlaying && this._playback.source) {
+        if(this.isPlaying) {
             this.stop();
         }
 
         this.currentTrackIndex += 1;
         this.play();
+
         return this;
     }
 
     playPrev() {
-        if(this.isPlaying && this._playback.source) {
+        if(this.isPlaying) {
             this.stop();
         }
 
         this.currentTrackIndex -= 1;
         this.play();
+
         return this;
     }
 
@@ -97,72 +101,35 @@ export default class AudioPlayer extends EventEmmiter {
         this._playback = {
             track: null,
             source: null,
-            buffer: null,
             playing: false,
             loading: false,
             startTime: 0,
             offset: 0
         }
+        // console.log('RESET PLAYBACK');
 
-        console.log('RESET PLAYBACK');
-
-        return this;
-    }
-
-    _loadTrack() {
-        if(this._playback.loading && this._playback.track) {
-            return this;
-        }
-
-        const track = this._playback.track;
-        let xhr = new XMLHttpRequest();
-        this._playback.loading = true;
-
-        xhr.open('GET', track.src, true);
-        xhr.responseType = 'arraybuffer';
-        xhr.addEventListener('load', (e) => {
-            this._ctx.decodeAudioData(xhr.response,
-                (decodedArrayBuffer) => {
-                    track.buffer = decodedArrayBuffer;
-                    this._playback.loading = false;
-                    this.emit('track:load');
-                }, (e) => {
-                    console.log('Error decoding file', e);
-                }
-            );
-        });
-        xhr.send();
-
-        return this;
-    }
-
-    _setTrack(track) {
-        this._playback.track = track;
         return this;
     }
 
     _startPlayback() {
         if(this.isPlaying) {
-            console.log('ALREADY PLAYING!');
+            console.log('Already playing!1');
             return this;
         }
 
         const playback = this._playback;
+        const track = this._playback.track;
+        
         playback.startTime = this._ctx.currentTime;
-
-        playback.source = this._ctx.createBufferSource();
+        playback.source = this._ctx.createMediaElementSource(track.audio);
         playback.source.connect(this._gain);
-        playback.source.buffer = playback.track.buffer;
 
-        console.log(`PLAYING - ${playback.track.src}`);
+        console.log(`Playing - ${playback.track.src}`);
         playback.playing = true;
-        playback.source.start(0, playback.offset % playback.source.buffer.duration);
-        playback.source.addEventListener('ended', (e) => {
-            if(this.isPlaying && e.target.buffer === this._playback.source.buffer) {
-                console.log('TRACK ENDED');
-                this.playNext();
-            }
-        });
+        track.audio.play();
+
+        //Unsubscribe because changing current time triggering 'canplay' event
+        track.off('track:canplay', this._startPlayback.bind(this));
 
         return this;
     }

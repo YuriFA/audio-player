@@ -1,10 +1,15 @@
 "use strict";
 
-export default class Track {
+import EventEmmiter from './utils/EventEmmiter.js';
+
+export default class Track extends EventEmmiter{
     constructor(src, name='') {
+        super();
+
         this._src = src;
         this._name = name;
         this._buffer = null;
+        this._audio = null;
     }
 
     get src() {
@@ -15,12 +20,26 @@ export default class Track {
         return this._name;
     }
 
-    set buffer(buffer) {
-        this._buffer = buffer;
-        return this;
+    get audio() {
+        return this._audio;
     }
 
-    get buffer() {
-        return this._buffer;
+    isBuffered() {
+        return this._audio.buffered.length > 0;
+    }
+
+    load() {
+        if(!this._audio) {
+            this._audio = new Audio();
+            this._audio.addEventListener('canplay', (e) => {
+                this.emit('track:canplay', e);
+            });
+            this._audio.addEventListener('ended', () => {
+                this.emit('track:ended');
+            })
+            this._audio.src = this._src;
+        }
+
+        return this;
     }
 };

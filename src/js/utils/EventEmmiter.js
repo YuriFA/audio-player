@@ -32,9 +32,8 @@ export default class EventEmmiter {
         }
 
         const callbacks = this._events[event];
-        
         callbacks.forEach((callback, i ) => {
-            if(callback === cb) {
+            if(callback.toString() === cb.toString()) {
                 callbacks.splice(i, 1);
             }
         });

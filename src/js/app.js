@@ -1,6 +1,7 @@
 import AudioPlayer from './AudioPlayer';
 import Playlist from './Playlist';
 import DOMBuidler from './utils/DOMBuilder'
+import EventEmmiter from './utils/EventEmmiter'
 
 const tracks = [
     './../media/01 - Prison Song.mp3',
@@ -39,7 +40,6 @@ playNextBtn.addEventListener('click', (e) => {
 });
 
 playPrevBtn.addEventListener('click', (e) => {
-    console.log('PREV', playPrevBtn);
     playBtn.classList.add('player-controls__btn_pause');
     player.playPrev();
 });
