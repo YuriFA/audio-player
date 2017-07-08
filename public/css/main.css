@@ -13,6 +13,28 @@
   bottom: 0;
   background-color: #252642; }
 
+.progress {
+  position: absolute;
+  height: 10px;
+  width: 100%;
+  bottom: 60px; }
+  .progress .progress__bar {
+    height: 100%;
+    width: 100%;
+    background-color: #eee;
+    cursor: pointer; }
+    .progress .progress__bar div {
+      height: 100%;
+      width: 0;
+      position: absolute;
+      top: 0; }
+    .progress .progress__bar .progress__buffer {
+      background-color: #a5a5a5;
+      z-index: 2; }
+    .progress .progress__bar .progress__line {
+      z-index: 3;
+      background-color: #25A611; }
+
 .player-controls {
   width: 100%;
   height: 100%; }
@@ -43,20 +65,22 @@
     .player-controls .player-controls__volume-container > div {
       display: inline-block;
       vertical-align: top; }
-    .player-controls .player-controls__volume-container .volume__btn > .volume__icon {
-      width: 24px;
-      height: 24px;
-      margin: 8px;
-      background: url("./../i/volume.svg") center center no-repeat;
-      background-position: 0 0; }
-      .player-controls .player-controls__volume-container .volume__btn > .volume__icon.volume__icon_half {
-        background-position: 0 -24px; }
-      .player-controls .player-controls__volume-container .volume__btn > .volume__icon.volume__icon_mute {
-        background-position: 0 -48px; }
+    .player-controls .player-controls__volume-container .volume__btn {
+      cursor: pointer; }
+      .player-controls .player-controls__volume-container .volume__btn > .volume__icon {
+        width: 24px;
+        height: 24px;
+        margin: 8px;
+        background: url("./../i/volume.svg") center center no-repeat;
+        background-position: 0 0; }
+        .player-controls .player-controls__volume-container .volume__btn > .volume__icon.volume__icon_half {
+          background-position: 0 -24px; }
+        .player-controls .player-controls__volume-container .volume__btn > .volume__icon.volume__icon_mute {
+          background-position: 0 -48px; }
     .player-controls .player-controls__volume-container .volume__control {
       vertical-align: middle;
       padding: 4px 0; }
-      .player-controls .player-controls__volume-container .volume__control .volume__bar .volume__slider {
+      .player-controls .player-controls__volume-container .volume__control .volume__slider {
         width: 136px;
         height: 32px; }
 

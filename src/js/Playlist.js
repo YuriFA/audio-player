@@ -3,8 +3,9 @@
 import Track from './Track';
 
 export default class Playlist {
-    constructor() {
+    constructor(tracks=[]) {
         this._tracks = [];
+        this.addTrackList(tracks);
     }
 
     get tracks() {

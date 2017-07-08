@@ -7,27 +7,39 @@ import EventEmmiter from './utils/EventEmmiter';
 const PLAYING_TIME = 5; //for test
 
 export default class AudioPlayer extends EventEmmiter {
-    constructor(node, playlist, params = {}) {
+    constructor(tracks=[], params = {}) {
         super();
 
-        this.playlist = playlist || new Playlist();
+        this.playlist = new Playlist(tracks);
+        this.muted = false;
         this.currentTrackIndex = 0;
         this._playback = {}
         this._resetPlaybackInfo();
+        this._setTrack();
+
         // init Audio API Nodes
         this._ctx = null;
         this._gain = null;
         this._createAudioApiNodes();
-        this._gain.gain.value = 0.04;
+        this._gain.gain.value = 0.1;
     }
 
     get isPlaying() {
         return this._playback.playing;
     }
+    
+    get volume() {
+        return this._gain.gain.value;
+    }
 
     set volume(value) {
         if(value > 1 && value < 0) {
             throw Error('Volume must be in range from 0 to 1');
+        }
+        if(value === 0) {
+            this.mute();
+        } else if(this.muted) {
+            this.unmute();
         }
         this._gain.gain.value = value; 
     }
@@ -36,11 +48,12 @@ export default class AudioPlayer extends EventEmmiter {
         if(this.isPlaying) {
             return this;
         }
+        console.log(`Playing track id=${this.currentTrackIndex}`);
+
 
         if(!this._playback.track) {
-            this._playback.track = this.playlist.getTrack(this.currentTrackIndex);
+            this._setTrack();
         }
-        console.log(`Playing track id=${this.currentTrackIndex}`);
 
         const track = this._playback.track;
         if(track.audio && track.isBuffered()) {
@@ -49,8 +62,20 @@ export default class AudioPlayer extends EventEmmiter {
         } else {
             track.load();
             //Subscribe
-            track.on('track:canplay', this._startPlayback.bind(this));
-            track.on('track:ended', this.playNext.bind(this));
+            track.on('canplay', this._startPlayback.bind(this));
+            track.on('ended', this.playNext.bind(this));
+            track.on('progress', (e) => {
+                this.emit('track:progress', e);
+            });
+            track.on('loadeddata', (e) => {
+                this.emit('track:loadeddata', e);
+            });
+            track.on('loadedmetadata', (e) => {
+                this.emit('track:loadedmetadata', e);
+            });
+            track.on('timeupdate', (e) => {
+                this.emit('track:timeupdate', e);
+            });
         }
 
         return this;
@@ -71,6 +96,20 @@ export default class AudioPlayer extends EventEmmiter {
         const track = this._playback.track;
         track.audio.pause();
         console.log('PAUSED');
+
+        return this;
+    }
+
+    mute() {
+        this._playback.track.muted = true;
+        this.muted = true;
+
+        return this;
+    }
+
+    unmute() {
+        this._playback.track.muted = false;
+        this.muted = false;
 
         return this;
     }
@@ -97,14 +136,21 @@ export default class AudioPlayer extends EventEmmiter {
         return this;
     }
 
+    _setTrack() {
+        if(this.isPlaying) {
+            return this;
+        }
+
+        this._playback.track = this.playlist.getTrack(this.currentTrackIndex);
+
+        return this;
+    }
+
     _resetPlaybackInfo() {
         this._playback = {
             track: null,
             source: null,
             playing: false,
-            loading: false,
-            startTime: 0,
-            offset: 0
         }
         // console.log('RESET PLAYBACK');
 
@@ -124,12 +170,12 @@ export default class AudioPlayer extends EventEmmiter {
         playback.source = this._ctx.createMediaElementSource(track.audio);
         playback.source.connect(this._gain);
 
-        console.log(`Playing - ${playback.track.src}`);
+        console.log(`Loaded - ${playback.track.src}`);
         playback.playing = true;
         track.audio.play();
 
         //Unsubscribe because changing current time triggering 'canplay' event
-        track.off('track:canplay', this._startPlayback.bind(this));
+        track.off('canplay', this._startPlayback.bind(this));
 
         return this;
     }
