@@ -21,8 +21,14 @@ const volumeBtn = document.querySelector('.volume__btn');
 const volumeSliderNode = document.querySelector('.volume__slider');
 const volumeSliderFilled = document.querySelector('.volume__slider .slider__filled');
 
+const progressBar = document.querySelector('.progress__bar');
 const progressBuffer = document.querySelector('.progress__buffer');
 const progressLine = document.querySelector('.progress__line');
+
+const player = new AudioPlayer(tracks);
+setVolume(player.volume);
+// player.playlist.addTrack(['./../media/System_Of_A_Down_-_Aerials.mp3']);
+// player.playlist.addTrackList(tracks);
 
 function setVolume(value) {
     const icon = volumeBtn.children[0];
@@ -43,76 +49,18 @@ function setVolume(value) {
     player.volume = validValue;
 }
 
-const player = new AudioPlayer(tracks);
-setVolume(player.volume);
-// player.playlist.addTrack(['./../media/System_Of_A_Down_-_Aerials.mp3']);
-// player.playlist.addTrackList(tracks);
-
-
-function updateBuffer(e) {
-    const audio = e.target;
-    const buffered = audio.buffered;
-    const buffRatio = buffered.length ? buffered.end(buffered.length - 1) / audio.duration * 100 : 0;
-    
-    progressBuffer.style.width = `${buffRatio}%`;
+function drawProgress(value) {
+    const validValue = value > 1 ? 1 : (value < 0 ? 0 : value);
+    progressLine.style.width = `${validValue * 100}%`;
 }
 
-player.on('track:progress', updateBuffer);
-player.on('track:loadeddata', updateBuffer);
-player.on('track:timeupdate', (e) => {
-    const audio = e.target;
-    const playedRatio = audio.currentTime / audio.duration * 100;
-    progressLine.style.width = `${playedRatio}%`;
-});
-
-playBtn.addEventListener('click', () => {
-    if(!player.isPlaying) {
-        playBtn.classList.add('player-controls__btn_pause');
-        player.play();
-    } else {
-        playBtn.classList.remove('player-controls__btn_pause');
-        player.pause();
-    }
-});
-
-playNextBtn.addEventListener('click', (e) => {
-    playBtn.classList.add('player-controls__btn_pause');
-    player.playNext();
-});
-
-playPrevBtn.addEventListener('click', (e) => {
-    playBtn.classList.add('player-controls__btn_pause');
-    player.playPrev();
-});
-
 // Volume settings
-// let volumeDraggable = false;
 const updateVolume = (e) => {
     let ratio = (e.clientX - volumeSliderNode.offsetLeft) / volumeSliderNode.offsetWidth;
     setVolume(ratio);
 }
 
 const volumeSlider = new Slider(volumeSliderNode, updateVolume);
-
-// volumeSliderNode.addEventListener('mousedown', (e) => {
-//     if(e.which === 1) { //left mouse button
-//         volumeDraggable = true;
-//         updateVolume(e);
-//     }
-// });
-
-// document.addEventListener('mousemove', (e) => {
-//     if(volumeDraggable) {
-//         updateVolume(e);
-//     }
-// });
-
-// document.addEventListener('mouseup', (e) => {
-//     if(volumeDraggable) {
-//         volumeDraggable = false;
-//         updateVolume(e);
-//     }
-// });
 
 volumeBtn.addEventListener('click', () => {
     const icon = volumeBtn.children[0];
@@ -134,4 +82,51 @@ volumeBtn.addEventListener('wheel', (e) => {
 volumeSliderNode.addEventListener('wheel', (e) => {
     const newValue = player.volume + Math.sign(e.wheelDeltaY) * 0.05;
     setVolume(newValue);
+});
+
+// Progress settings
+const updateProgress = (e) => {
+    let ratio = (e.clientX - progressBar.offsetLeft) / progressBar.offsetWidth;
+    drawProgress(ratio);
+    player.rewind(ratio);
+}
+const progressSlider = new Slider(progressBar, updateProgress);
+
+
+const updateBuffer = (e) => {
+    const audio = e.target;
+    const buffered = audio.buffered;
+    const buffRatio = buffered.length ? buffered.end(buffered.length - 1) / audio.duration * 100 : 0;
+    
+    progressBuffer.style.width = `${buffRatio}%`;
+}
+
+player.on('track:progress', updateBuffer);
+player.on('track:loadeddata', updateBuffer);
+player.on('track:timeupdate', (e) => {
+    const audio = e.target;
+    const playedRatio = audio.currentTime / audio.duration;
+    drawProgress(playedRatio);
+});
+
+
+// Player controls settings
+playBtn.addEventListener('click', () => {
+    if(!player.isPlaying) {
+        playBtn.classList.add('player-controls__btn_pause');
+        player.play();
+    } else {
+        playBtn.classList.remove('player-controls__btn_pause');
+        player.pause();
+    }
+});
+
+playNextBtn.addEventListener('click', (e) => {
+    playBtn.classList.add('player-controls__btn_pause');
+    player.playNext();
+});
+
+playPrevBtn.addEventListener('click', (e) => {
+    playBtn.classList.add('player-controls__btn_pause');
+    player.playPrev();
 });

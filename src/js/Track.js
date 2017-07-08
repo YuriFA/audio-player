@@ -10,6 +10,7 @@ export default class Track extends EventEmmiter{
         this._name = name;
         this._buffer = null;
         this._audio = new Audio();
+        this._bind();
     }
 
     get src() {
@@ -33,6 +34,13 @@ export default class Track extends EventEmmiter{
     }
 
     load() {
+        this._audio.crossOrigin = "anonymous";
+        this._audio.src = this._src;
+
+        return this;
+    }
+
+    _bind() {
         this._audio.addEventListener('canplay', (e) => {
             this.emit('canplay', e);
         });
@@ -49,13 +57,7 @@ export default class Track extends EventEmmiter{
             this.emit('loadedmetadata', e);
         });
         this._audio.addEventListener('timeupdate', (e) => {
-            console.log(e);
             this.emit('timeupdate', e);
         });
-        
-        this._audio.crossOrigin = "anonymous";
-        this._audio.src = this._src;
-
-        return this;
     }
 };

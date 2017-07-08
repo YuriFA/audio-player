@@ -136,6 +136,21 @@ export default class AudioPlayer extends EventEmmiter {
         return this;
     }
 
+    // перемотка
+    rewind(ratio) {
+        if(ratio > 1 && ratio < 0) {
+            throw Error('Volume must be in range from 0 to 1');
+        }
+
+        const audio = this._playback.track.audio;
+        if(!isNaN(audio.duration)) {
+            const newTime = audio.duration * ratio;
+            audio.currentTime = newTime;
+        }
+
+        return this;
+    }
+
     _setTrack() {
         if(this.isPlaying) {
             return this;
