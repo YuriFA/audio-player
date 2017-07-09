@@ -3,8 +3,7 @@
 import Playlist from './Playlist';
 import Track from './Track';
 import EventEmmiter from './utils/EventEmmiter';
-
-const PLAYING_TIME = 5; //for test
+import Equalizer from './Equalizer';
 
 export default class AudioPlayer extends EventEmmiter {
     constructor(tracks=[], params = {}) {
@@ -20,8 +19,8 @@ export default class AudioPlayer extends EventEmmiter {
         // init Audio API Nodes
         this._ctx = null;
         this._gain = null;
+        this._equalizer = null;
         this._createAudioApiNodes();
-        this._gain.gain.value = 0.1;
     }
 
     get isPlaying() {
@@ -41,21 +40,21 @@ export default class AudioPlayer extends EventEmmiter {
         } else if(this.muted) {
             this.unmute();
         }
-        this._gain.gain.value = value; 
+        this._gain.gain.value = value;
     }
 
     play() {
         if(this.isPlaying) {
             return this;
         }
-        console.log(`Playing track id=${this.currentTrackIndex}`);
 
-
-        if(!this._playback.track) {
+        if(!this._playback.track || this._playback.track.id !== this.currentTrackIndex) {
             this._setTrack();
         }
 
         const track = this._playback.track;
+
+        console.log(`Playing track id=${this.currentTrackIndex} - ${track.src}`);
         if(track.audio && track.isBuffered()) {
             track.audio.play();
             this._playback.playing = true;
@@ -69,6 +68,9 @@ export default class AudioPlayer extends EventEmmiter {
             });
             track.on('loadeddata', (e) => {
                 this.emit('track:loadeddata', e);
+            });
+            track.on('canplaythrough', (e) => {
+                this.emit('track:canplaythrough', e);
             });
             track.on('loadedmetadata', (e) => {
                 this.emit('track:loadedmetadata', e);
@@ -86,7 +88,6 @@ export default class AudioPlayer extends EventEmmiter {
         const track = this._playback.track;
         track.audio.pause();
         track.audio.currentTime = 0;
-        this._resetPlaybackInfo();
 
         return this;
     }
@@ -118,6 +119,7 @@ export default class AudioPlayer extends EventEmmiter {
         if(this.isPlaying) {
             this.stop();
         }
+        this._resetPlaybackInfo();
 
         this.currentTrackIndex += 1;
         this.play();
@@ -129,6 +131,7 @@ export default class AudioPlayer extends EventEmmiter {
         if(this.isPlaying) {
             this.stop();
         }
+        this._resetPlaybackInfo();
 
         this.currentTrackIndex -= 1;
         this.play();
@@ -155,7 +158,7 @@ export default class AudioPlayer extends EventEmmiter {
         if(this.isPlaying) {
             return this;
         }
-
+        console.log('Setting track', this.currentTrackIndex);
         this._playback.track = this.playlist.getTrack(this.currentTrackIndex);
 
         return this;
@@ -181,26 +184,38 @@ export default class AudioPlayer extends EventEmmiter {
         const playback = this._playback;
         const track = this._playback.track;
         
-        playback.startTime = this._ctx.currentTime;
         playback.source = this._ctx.createMediaElementSource(track.audio);
-        playback.source.connect(this._gain);
+        this._connectNodes();
 
         console.log(`Loaded - ${playback.track.src}`);
         playback.playing = true;
         track.audio.play();
 
-        //Unsubscribe because changing current time triggering 'canplay' event
+        //Unsubscribe because 'canplay' event triggered by changing the current time
         track.off('canplay', this._startPlayback.bind(this));
 
         return this;
     }
 
     _createAudioApiNodes() {
+        if(!(window.AudioContext || window.webkitAudioContext)) return;
+
         this._ctx = new (window.AudioContext || window.webkitAudioContext)();
         this._dest = this._ctx.destination;
         this._gain = this._ctx.createGain();
+        this._equalizer = new Equalizer(this._ctx);
+        return this;
+    }
 
-        // Connect Nodes
+    _connectNodes() {
+        const source = this._playback.source;
+        const filters = this._equalizer.filters;
+        if(!(source instanceof MediaElementAudioSourceNode)) {
+            throw Error('Source node is undefined or source !== MediaElementAudioSourceNode');
+        }
+
+        source.connect(filters[0]);
+        filters[filters.length - 1].connect(this._gain);
         this._gain.connect(this._dest);
 
         return this;

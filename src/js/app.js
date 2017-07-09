@@ -5,6 +5,7 @@ import Slider from './utils/Slider.js';
 
 const tracks = [
     "https://psv4.userapi.com/c813426/u371745449/audios/9c1312192a1f.mp3?extra=VJaBPkT9cAnq5pm3Awnbc7XC0YZYmz5-VQuceGER_P6cWML5Lwx8P9h_ucpPc9YLfsgCF-X-BZ6jbW12151MZSnHhsknnC09vP1rVFY0CWjd-UAWLwoOaDyF-cgBUZrPBh4-kGjeYM43-mA",
+    'http://freshly-ground.com/data/audio/mpc/20090207%20-%20Loverman.mp3',
     './../media/02 - Needles.mp3',
     './../media/03 - Deer Dance.mp3',
     './../media/04 - Jet Pilot.mp3',
@@ -19,39 +20,38 @@ const playPrevBtn = document.querySelector('.player-controls__btn_prev');
 
 const volumeBtn = document.querySelector('.volume__btn');
 const volumeSliderNode = document.querySelector('.volume__slider');
-const volumeSliderFilled = document.querySelector('.volume__slider .slider__filled');
+const volumeSliderFilled = document.querySelector('.volume__slider .slider-horiz__filled');
 
 const progressBar = document.querySelector('.progress__bar');
 const progressBuffer = document.querySelector('.progress__buffer');
 const progressLine = document.querySelector('.progress__line');
 
 const player = new AudioPlayer(tracks);
+player.volume = 0.1;
 setVolume(player.volume);
 // player.playlist.addTrack(['./../media/System_Of_A_Down_-_Aerials.mp3']);
 // player.playlist.addTrackList(tracks);
 
 function setVolume(value) {
     const icon = volumeBtn.children[0];
-    const validValue = value > 1 ? 1 : (value < 0 ? 0 : value);
-    if(validValue === 0) {
+    if(value === 0) {
         icon.classList.remove('volume__icon_half');
         icon.classList.add('volume__icon_mute');
     }
-    if(validValue > 0 && validValue <= 0.5) {
+    if(value > 0 && value <= 0.5) {
         icon.classList.remove('volume__icon_mute');
         icon.classList.add('volume__icon_half');
     }
-    if(validValue > 0.5) {
+    if(value > 0.5) {
         icon.classList.remove('volume__icon_mute');
         icon.classList.remove('volume__icon_half');
     }
-    volumeSliderFilled.style.width = `${validValue * 100}%`;
-    player.volume = validValue;
+    volumeSliderFilled.style.width = `${value * 100}%`;
+    player.volume = value;
 }
 
 function drawProgress(value) {
-    const validValue = value > 1 ? 1 : (value < 0 ? 0 : value);
-    progressLine.style.width = `${validValue * 100}%`;
+    progressLine.style.width = `${value * 100}%`;
 }
 
 // Volume settings
@@ -60,7 +60,9 @@ const updateVolume = (e) => {
     setVolume(ratio);
 }
 
-const volumeSlider = new Slider(volumeSliderNode, updateVolume);
+const volumeSlider = new Slider(volumeSliderNode, {
+    callback: setVolume
+});
 
 volumeBtn.addEventListener('click', () => {
     const icon = volumeBtn.children[0];
@@ -75,34 +77,40 @@ volumeBtn.addEventListener('click', () => {
 
 // обработчик MouseScroll event'а для управления громкостью
 volumeBtn.addEventListener('wheel', (e) => {
+    e.preventDefault();
     const newValue = player.volume + Math.sign(e.wheelDeltaY) * 0.05;
     setVolume(newValue);
 });
 
 volumeSliderNode.addEventListener('wheel', (e) => {
+    e.preventDefault();
     const newValue = player.volume + Math.sign(e.wheelDeltaY) * 0.05;
     setVolume(newValue);
 });
 
 // Progress settings
-const updateProgress = (e) => {
-    let ratio = (e.clientX - progressBar.offsetLeft) / progressBar.offsetWidth;
+const setProgress = (ratio) => {
+    // let ratio = (e.clientX - progressBar.offsetLeft) / progressBar.offsetWidth;
     drawProgress(ratio);
     player.rewind(ratio);
 }
-const progressSlider = new Slider(progressBar, updateProgress);
+const progressSlider = new Slider(progressBar, {
+    callback: setProgress
+});
 
 
 const updateBuffer = (e) => {
     const audio = e.target;
     const buffered = audio.buffered;
-    const buffRatio = buffered.length ? buffered.end(buffered.length - 1) / audio.duration * 100 : 0;
+    const buffRatio = buffered.length ? buffered.end(buffered.length - 1) / audio.duration : 0;
+    // console.log(buffered, buffRatio);
     
-    progressBuffer.style.width = `${buffRatio}%`;
+    progressBuffer.style.width = `${buffRatio * 100}%`;
 }
 
 player.on('track:progress', updateBuffer);
 player.on('track:loadeddata', updateBuffer);
+player.on('track:canplaythrough', updateBuffer);
 player.on('track:timeupdate', (e) => {
     const audio = e.target;
     const playedRatio = audio.currentTime / audio.duration;
@@ -129,4 +137,16 @@ playNextBtn.addEventListener('click', (e) => {
 playPrevBtn.addEventListener('click', (e) => {
     playBtn.classList.add('player-controls__btn_pause');
     player.playPrev();
+});
+
+//Equalizer settings
+const equalizerBands = document.querySelectorAll('.equalizer-band__slider');
+equalizerBands.forEach((band, i) => {
+    const bandFilled = band.querySelector('.slider-vert__filled');
+    const bandSlider = new Slider(band, {
+        vertical: true,
+        callback: (ratio) => {
+            bandFilled.style.height = `${ratio * 100}%`
+        }
+    });
 });

@@ -3,14 +3,14 @@
 import EventEmmiter from './utils/EventEmmiter.js';
 
 export default class Track extends EventEmmiter{
-    constructor(src, name='') {
+    constructor(id, src, name='') {
         super();
-
+        this.id = id;
         this._src = src;
         this._name = name;
         this._buffer = null;
         this._audio = new Audio();
-        this._bind();
+        this._bindEvents();
     }
 
     get src() {
@@ -40,7 +40,7 @@ export default class Track extends EventEmmiter{
         return this;
     }
 
-    _bind() {
+    _bindEvents() {
         this._audio.addEventListener('canplay', (e) => {
             this.emit('canplay', e);
         });
@@ -52,6 +52,9 @@ export default class Track extends EventEmmiter{
         });
         this._audio.addEventListener('loadeddata', (e) => {
             this.emit('loadeddata', e);
+        });
+        this._audio.addEventListener('canplaythrough', (e) => {
+            this.emit('canplaythrough', e);
         });
         this._audio.addEventListener('loadedmetadata', (e) => {
             this.emit('loadedmetadata', e);

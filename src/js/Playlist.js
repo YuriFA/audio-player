@@ -22,22 +22,22 @@ export default class Playlist {
         }
     }
 
-    addTrack(src, name = '') {
-        const track = new Track(src, name);
+    addTrack(id, src, name = '') {
+        const track = new Track(id, src, name);
         this.tracks.push(track);
 
         return this;
     }
 
     addTrackList(list) {
-        list.forEach((track) => {
+        list.forEach((track, i) => {
             if(typeof track === 'string') {
                 console.log('str', track);
-                this.addTrack(track);
+                this.addTrack(i, track);
             } else if(typeof track === 'object') {
                 const { src, name } = track;
                 console.log('obj', src, name);
-                this.addTrack(src, name);
+                this.addTrack(i, src, name);
             }
         });
     }
