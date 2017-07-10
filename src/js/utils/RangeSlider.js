@@ -2,7 +2,7 @@ import { isFunction } from './';
 
 // TODO: Добавить min и max значения и хранить значения из этого интервала
 // TODO: Добавить дефолтные параметры
-export default class Slider {
+export default class RangeSlider {
     constructor(node, options={}) {
         this.node = node;
         // this.filledNode = 

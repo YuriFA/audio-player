@@ -1,7 +1,7 @@
 import AudioPlayer from './AudioPlayer';
 import Playlist from './Playlist';
 import DOMBuidler from './utils/DOMBuilder';
-import Slider from './utils/Slider.js';
+import RangeSlider from './utils/RangeSlider';
 
 const playerNode = document.getElementById("player");
 const playBtn = document.querySelector('.player-controls__btn_play');
@@ -59,7 +59,7 @@ const updateVolume = (e) => {
     setVolume(ratio);
 }
 
-const volumeSlider = new Slider(volumeSliderNode, {
+const volumeSlider = new RangeSlider(volumeSliderNode, {
     value: player.volume,
     onchange: setVolume
 });
@@ -93,7 +93,7 @@ const setProgress = (ratio) => {
     drawProgress(ratio);
     player.rewind(ratio);
 }
-const progressSlider = new Slider(progressBar, {
+const progressSlider = new RangeSlider(progressBar, {
     onchange: setProgress
 });
 
@@ -141,7 +141,7 @@ playPrevBtn.addEventListener('click', (e) => {
 equalizerBands.forEach((band, i) => {
     const bandFilled = band.querySelector('.slider-vert__filled');
     const filterValue = player.getEqualizerFilterGain(i);
-    const bandSlider = new Slider(band, {
+    const bandSlider = new RangeSlider(band, {
         vertical: true,
         min: -12,
         max: 12,
