@@ -5,22 +5,21 @@ import { isFunction } from './';
 export default class Slider {
     constructor(node, options={}) {
         this.node = node;
+        // this.filledNode = 
         this.vertical = options.vertical || false;
         this.onchange = options.onchange;
         this.draggable = false;
-        this.value = null;
-        this._bind();
+        this.min = options.min || 0;
+        this.max = options.max || 1;
+        this.value = options.value || this.min;
 
-        if(typeof options.defaultValue === "number") {
-            console.log('set');
-            this.setValue(options.defaultValue);
-        }
-        
+        this._bindEvents();
+        this.setValue(this.value);
         //chrome bug with mousemove
         this.node.ondragstart = () => false;
     }
 
-    _bind() {
+    _bindEvents() {
         this.node.addEventListener('mousedown', (e) => {
             if(e.which === 1) { //left mouse button
                 this.draggable = true;
@@ -57,14 +56,14 @@ export default class Slider {
     _updateValue(e) {
         const pos = this.node.getBoundingClientRect();
 
-        let value = null;
+        let ratio = null;
         if(this.vertical) {
-            value = 1 - ((e.clientY - pos.top) / this.node.offsetHeight);
+            ratio = 1 - ((e.clientY - pos.top) / this.node.offsetHeight);
         } else {
-            value = (e.clientX - pos.left) / this.node.offsetWidth;
+            ratio = (e.clientX - pos.left) / this.node.offsetWidth;
         }
 
-        this.setValue(value);
+        this.setValue(ratio);
 
         return this;
     }

@@ -172,7 +172,15 @@ export default class AudioPlayer extends EventEmmiter {
             return this;
         }
         console.log('Setting track', this.currentTrackIndex);
-        this._playback.track = this.playlist.getTrack(this.currentTrackIndex);
+        //TODO: need to refactoring this
+        try {
+            this._playback.track = this.playlist.getTrack(this.currentTrackIndex);
+        } catch (error) {
+            console.log(error);
+            console.log('CurrentTrackIndex reseted to 0');
+            this.currentTrackIndex = 0;
+            this._playback.track = this.playlist.getTrack(this.currentTrackIndex);
+        }
 
         return this;
     }

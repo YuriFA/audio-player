@@ -3,16 +3,6 @@ import Playlist from './Playlist';
 import DOMBuidler from './utils/DOMBuilder';
 import Slider from './utils/Slider.js';
 
-const tracks = [
-    // "https://psv4.userapi.com/c813426/u371745449/audios/9c1312192a1f.mp3?extra=VJaBPkT9cAnq5pm3Awnbc7XC0YZYmz5-VQuceGER_P6cWML5Lwx8P9h_ucpPc9YLfsgCF-X-BZ6jbW12151MZSnHhsknnC09vP1rVFY0CWjd-UAWLwoOaDyF-cgBUZrPBh4-kGjeYM43-mA",
-    'http://freshly-ground.com/data/audio/mpc/20090207%20-%20Loverman.mp3',
-    './../media/02 - Needles.mp3',
-    './../media/03 - Deer Dance.mp3',
-    './../media/04 - Jet Pilot.mp3',
-    './../media/05 - X.mp3',
-    './../media/06 - Chop Suey!.mp3',
-]
-
 const playerNode = document.getElementById("player");
 const playBtn = document.querySelector('.player-controls__btn_play');
 const playNextBtn = document.querySelector('.player-controls__btn_next');
@@ -26,11 +16,20 @@ const progressBar = document.querySelector('.progress__bar');
 const progressBuffer = document.querySelector('.progress__buffer');
 const progressLine = document.querySelector('.progress__line');
 
+const equalizerBands = document.querySelectorAll('.equalizer-band__slider');
+
+const tracks = [
+    'http://freshly-ground.com/data/audio/mpc/20090207%20-%20Loverman.mp3',
+    // './../media/02 - Needles.mp3',
+    // './../media/03 - Deer Dance.mp3',
+    // './../media/04 - Jet Pilot.mp3',
+    // './../media/05 - X.mp3',
+    // './../media/06 - Chop Suey!.mp3',
+];
+
 const player = new AudioPlayer(tracks);
 player.volume = 0.1;
 setVolume(player.volume);
-// player.playlist.addTrack(['./../media/System_Of_A_Down_-_Aerials.mp3']);
-// player.playlist.addTrackList(tracks);
 
 function setVolume(value) {
     const icon = volumeBtn.children[0];
@@ -61,6 +60,7 @@ const updateVolume = (e) => {
 }
 
 const volumeSlider = new Slider(volumeSliderNode, {
+    value: player.volume,
     onchange: setVolume
 });
 
@@ -138,14 +138,14 @@ playPrevBtn.addEventListener('click', (e) => {
 });
 
 //Equalizer settings
-const equalizerBands = document.querySelectorAll('.equalizer-band__slider');
 equalizerBands.forEach((band, i) => {
     const bandFilled = band.querySelector('.slider-vert__filled');
     const filterValue = player.getEqualizerFilterGain(i);
-    console.log(filterValue);
     const bandSlider = new Slider(band, {
         vertical: true,
-        defaultValue: filterValue,
+        min: -12,
+        max: 12,
+        value: filterValue,
         onchange: (ratio) => {
             const gain = (ratio - 0.5) * 24;
             console.log(gain);

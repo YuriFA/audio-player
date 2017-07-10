@@ -17,7 +17,6 @@ export default class Playlist {
         if(track) {
             return track;
         } else {
-            console.log(this.tracks);
             throw Error(`Track with id=${id} dosen't exist in playlist`);
         }
     }
