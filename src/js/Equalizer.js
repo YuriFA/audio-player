@@ -14,6 +14,19 @@ export default class Equalizer {
         return this._frequencies;
     }
 
+    changeFilterGain(id, value) {
+        if(id in this.filters) {
+            const validValue = value > 12 ? 12 : (value < -12 ? -12 : value);
+            this.filters[id].gain.value = validValue;
+        }
+
+        return this;
+    }
+
+    getFilterGain(id) {
+        return id in this.filters ? this.filters[id].gain.value : null;
+    }
+
     _createFilter(frequency) {
         const filter = this.context.createBiquadFilter();
 

@@ -1,4 +1,7 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,700');
+
 * {
+    font-family: 'Roboto', sans-serif;
     padding: 0;
     margin: 0;
 }
@@ -118,7 +121,7 @@
 }
 
 .equalizer {
-    width: 500px;
+    width: 430px;
     padding: 5px;
     border: 1px solid;
     margin: 20px;
@@ -133,11 +136,39 @@
 .equalizer-band {
     display: inline-block;
     width: 32px;
+    height: 137px;
+    padding-bottom: 15px;
+    position: relative;
+    font-size: 10px;
+    .equalizer-band__legend {
+        height: 100%;
+        position: relative;
+        div {
+            width: 100%;
+            position: absolute;
+            line-height: 14px;
+        }
+        .equalizer-band__max {
+            top: 0;
+        }
+        .equalizer-band__zero {
+            top: 50%;
+            margin-top: -7px;
+        }
+        .equalizer-band__min {
+            bottom: 0;
+        }
+    }
     .equalizer-band__control {
         .equalizer-band__slider {
             width: 32px;
             height: 136px;
         }
+    }
+    .equalizer-band__hz {
+        position: absolute;
+        bottom: -10px;
+        left: 10px;
     }
 }
 
@@ -156,7 +187,7 @@
         background-color: #ccc;
         .slider-horiz__filled {
             position: absolute;
-            width: 33%;
+            width: 0%;
             height: 6px;
             border-radius: 3px;
             background-color: #25A611;
@@ -197,7 +228,7 @@
             left: 0;
             bottom: 0;
             width: 6px;
-            height: 33%;
+            height: 0%;
             border-radius: 3px;
             background-color: #25A611;
             .slider-vert__drag {

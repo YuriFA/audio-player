@@ -4,7 +4,7 @@ import DOMBuidler from './utils/DOMBuilder';
 import Slider from './utils/Slider.js';
 
 const tracks = [
-    "https://psv4.userapi.com/c813426/u371745449/audios/9c1312192a1f.mp3?extra=VJaBPkT9cAnq5pm3Awnbc7XC0YZYmz5-VQuceGER_P6cWML5Lwx8P9h_ucpPc9YLfsgCF-X-BZ6jbW12151MZSnHhsknnC09vP1rVFY0CWjd-UAWLwoOaDyF-cgBUZrPBh4-kGjeYM43-mA",
+    // "https://psv4.userapi.com/c813426/u371745449/audios/9c1312192a1f.mp3?extra=VJaBPkT9cAnq5pm3Awnbc7XC0YZYmz5-VQuceGER_P6cWML5Lwx8P9h_ucpPc9YLfsgCF-X-BZ6jbW12151MZSnHhsknnC09vP1rVFY0CWjd-UAWLwoOaDyF-cgBUZrPBh4-kGjeYM43-mA",
     'http://freshly-ground.com/data/audio/mpc/20090207%20-%20Loverman.mp3',
     './../media/02 - Needles.mp3',
     './../media/03 - Deer Dance.mp3',
@@ -61,7 +61,7 @@ const updateVolume = (e) => {
 }
 
 const volumeSlider = new Slider(volumeSliderNode, {
-    callback: setVolume
+    onchange: setVolume
 });
 
 volumeBtn.addEventListener('click', () => {
@@ -90,12 +90,11 @@ volumeSliderNode.addEventListener('wheel', (e) => {
 
 // Progress settings
 const setProgress = (ratio) => {
-    // let ratio = (e.clientX - progressBar.offsetLeft) / progressBar.offsetWidth;
     drawProgress(ratio);
     player.rewind(ratio);
 }
 const progressSlider = new Slider(progressBar, {
-    callback: setProgress
+    onchange: setProgress
 });
 
 
@@ -103,7 +102,6 @@ const updateBuffer = (e) => {
     const audio = e.target;
     const buffered = audio.buffered;
     const buffRatio = buffered.length ? buffered.end(buffered.length - 1) / audio.duration : 0;
-    // console.log(buffered, buffRatio);
     
     progressBuffer.style.width = `${buffRatio * 100}%`;
 }
@@ -143,10 +141,16 @@ playPrevBtn.addEventListener('click', (e) => {
 const equalizerBands = document.querySelectorAll('.equalizer-band__slider');
 equalizerBands.forEach((band, i) => {
     const bandFilled = band.querySelector('.slider-vert__filled');
+    const filterValue = player.getEqualizerFilterGain(i);
+    console.log(filterValue);
     const bandSlider = new Slider(band, {
         vertical: true,
-        callback: (ratio) => {
-            bandFilled.style.height = `${ratio * 100}%`
+        defaultValue: filterValue,
+        onchange: (ratio) => {
+            const gain = (ratio - 0.5) * 24;
+            console.log(gain);
+            bandFilled.style.height = `${ratio * 100}%`;
+            player.changeEqualizerFilterGain(i, gain);
         }
     });
 });

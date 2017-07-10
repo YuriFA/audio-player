@@ -42,7 +42,7 @@ export default class AudioPlayer extends EventEmmiter {
         }
         this._gain.gain.value = value;
     }
-
+    
     play() {
         if(this.isPlaying) {
             return this;
@@ -61,6 +61,7 @@ export default class AudioPlayer extends EventEmmiter {
         } else {
             track.load();
             //Subscribe
+            //чет не ок
             track.on('canplay', this._startPlayback.bind(this));
             track.on('ended', this.playNext.bind(this));
             track.on('progress', (e) => {
@@ -142,7 +143,7 @@ export default class AudioPlayer extends EventEmmiter {
     // перемотка
     rewind(ratio) {
         if(ratio > 1 && ratio < 0) {
-            throw Error('Volume must be in range from 0 to 1');
+            throw Error('To rewind audio, ratio must be in range from 0 to 1');
         }
 
         const audio = this._playback.track.audio;
@@ -152,6 +153,18 @@ export default class AudioPlayer extends EventEmmiter {
         }
 
         return this;
+    }
+
+    changeEqualizerFilterGain(id, value) {
+        if(this._equalizer) {
+            this._equalizer.changeFilterGain(id, value);
+        }
+
+        return this;
+    }
+
+    getEqualizerFilterGain(id) {
+        return this._equalizer ? this._equalizer.getFilterGain(id) : null;
     }
 
     _setTrack() {
