@@ -41,6 +41,14 @@
                 height: 100%;
             }
         }
+        // .progress__buffer {
+        //     background-color: #a5a5a5;
+        //     z-index: 2;
+        // }
+        // .progress__line {
+        //     z-index: 3;
+        //     background-color: #25A611;
+        // }
     }
 }
 
@@ -205,6 +213,11 @@
                 outline: none;
             }
         }
+        .slider-horiz__buffer {
+            height: 100%;
+            background-color: #a5a5a5;
+            z-index: 2;
+        }
     }
 }
 
@@ -244,6 +257,11 @@
                 z-index: 2;
                 outline: none;
             }
+        }
+        .slider-vert__buffer {
+            width: 100%;
+            background-color: #a5a5a5;
+            z-index: 2;
         }
     }
 

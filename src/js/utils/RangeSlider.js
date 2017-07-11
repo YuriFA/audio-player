@@ -63,7 +63,12 @@ export default class RangeSlider {
     setBuffer(ratio) {
         if(this.options.buffer) {
             const validRatio = ratio > 1 ? 1 : (ratio < 0 ? 0 : ratio);
-            this.buffer.style.width = `${validRatio * 100}%`;
+
+            if(this.vertical) {
+                this.buffer.style.height = `${validRatio * 100}%`;
+            } else {
+                this.buffer.style.width = `${validRatio * 100}%`;
+            }
         }
         
         return this;
