@@ -18,11 +18,11 @@ const equalizerBands = document.querySelectorAll('.equalizer-band__slider');
 
 const tracks = [
     'http://freshly-ground.com/data/audio/mpc/20090207%20-%20Loverman.mp3',
-    './../media/02 - Needles.mp3',
-    './../media/03 - Deer Dance.mp3',
-    './../media/04 - Jet Pilot.mp3',
-    './../media/05 - X.mp3',
-    './../media/06 - Chop Suey!.mp3',
+    // './../media/02 - Needles.mp3',
+    // './../media/03 - Deer Dance.mp3',
+    // './../media/04 - Jet Pilot.mp3',
+    // './../media/05 - X.mp3',
+    // './../media/06 - Chop Suey!.mp3',
 ];
 
 const player = new AudioPlayer(tracks, { equalizer: true });
