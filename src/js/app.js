@@ -10,12 +10,10 @@ const playPrevBtn = document.querySelector('.player-controls__btn_prev');
 
 const volumeBtn = document.querySelector('.volume__btn');
 const volumeSliderNode = document.querySelector('.volume__slider');
-const volumeSliderFilled = document.querySelector('.volume__slider .slider-horiz__filled');
 
 const progressBar = document.querySelector('.progress__bar');
-const progressBuffer = document.querySelector('.progress__buffer');
-const progressLine = document.querySelector('.progress__line');
 
+const equalizerNode = document.querySelector('equalizer');
 const equalizerBands = document.querySelectorAll('.equalizer-band__slider');
 
 const tracks = [
@@ -27,11 +25,11 @@ const tracks = [
     // './../media/06 - Chop Suey!.mp3',
 ];
 
-const player = new AudioPlayer(tracks);
-player.volume = 0.1;
-setVolume(player.volume);
+const player = new AudioPlayer(tracks, { equalizer: true });
+player.volume = 0.5;
 
-function setVolume(value) {
+// Volume settings
+const setVolume = (value) => {
     const icon = volumeBtn.children[0];
     if(value === 0) {
         icon.classList.remove('volume__icon_half');
@@ -45,26 +43,16 @@ function setVolume(value) {
         icon.classList.remove('volume__icon_mute');
         icon.classList.remove('volume__icon_half');
     }
-    volumeSliderFilled.style.width = `${value * 100}%`;
     player.volume = value;
-}
-
-function drawProgress(value) {
-    progressLine.style.width = `${value * 100}%`;
-}
-
-// Volume settings
-const updateVolume = (e) => {
-    let ratio = (e.clientX - volumeSliderNode.offsetLeft) / volumeSliderNode.offsetWidth;
-    setVolume(ratio);
-}
+};
 
 const volumeSlider = new RangeSlider(volumeSliderNode, {
     value: player.volume,
-    onchange: setVolume
+    onchange: setVolume,
+    onmove: setVolume
 });
 
-volumeBtn.addEventListener('click', () => {
+volumeBtn.addEventListener('click', (e) => {
     const icon = volumeBtn.children[0];
     if(player.muted) {
         player.unmute();
@@ -75,35 +63,33 @@ volumeBtn.addEventListener('click', () => {
     }
 });
 
-// обработчик MouseScroll event'а для управления громкостью
-volumeBtn.addEventListener('wheel', (e) => {
+// MouseScroll event handler to control the volume
+const onwheelHandler = (e) => {
     e.preventDefault();
     const newValue = player.volume + Math.sign(e.wheelDeltaY) * 0.05;
-    setVolume(newValue);
-});
+    volumeSlider.setValue(newValue);
+    player.volume = newValue;
+};
 
-volumeSliderNode.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    const newValue = player.volume + Math.sign(e.wheelDeltaY) * 0.05;
-    setVolume(newValue);
-});
+volumeBtn.addEventListener('wheel', onwheelHandler);
+volumeSliderNode.addEventListener('wheel', onwheelHandler);
 
 // Progress settings
-const setProgress = (ratio) => {
-    drawProgress(ratio);
-    player.rewind(ratio);
+const setProgress = (value) => {
+    player.rewind(value);
 }
 const progressSlider = new RangeSlider(progressBar, {
+    handle: false,
+    buffer: true,
     onchange: setProgress
 });
-
 
 const updateBuffer = (e) => {
     const audio = e.target;
     const buffered = audio.buffered;
     const buffRatio = buffered.length ? buffered.end(buffered.length - 1) / audio.duration : 0;
     
-    progressBuffer.style.width = `${buffRatio * 100}%`;
+    progressSlider.setBuffer(buffRatio);
 }
 
 player.on('track:progress', updateBuffer);
@@ -111,8 +97,8 @@ player.on('track:loadeddata', updateBuffer);
 player.on('track:canplaythrough', updateBuffer);
 player.on('track:timeupdate', (e) => {
     const audio = e.target;
-    const playedRatio = audio.currentTime / audio.duration;
-    drawProgress(playedRatio);
+    const ratio = audio.currentTime / audio.duration;
+    progressSlider.setValue(ratio);
 });
 
 
@@ -146,11 +132,11 @@ equalizerBands.forEach((band, i) => {
         min: -12,
         max: 12,
         value: filterValue,
-        onchange: (ratio) => {
-            const gain = (ratio - 0.5) * 24;
-            console.log(gain);
-            bandFilled.style.height = `${ratio * 100}%`;
-            player.changeEqualizerFilterGain(i, gain);
+        onchange: (value) => {
+            player.changeEqualizerFilterGain(i, value);
+        },
+        onmove: (value) => {
+            player.changeEqualizerFilterGain(i, value);
         }
     });
 });

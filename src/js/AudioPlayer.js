@@ -6,13 +6,14 @@ import EventEmmiter from './utils/EventEmmiter';
 import Equalizer from './Equalizer';
 
 export default class AudioPlayer extends EventEmmiter {
-    constructor(tracks=[], params = {}) {
+    constructor(tracks=[], settings = {}) {
         super();
 
         this.playlist = new Playlist(tracks);
         this.muted = false;
         this.currentTrackIndex = 0;
         this._playback = {}
+        this.settings = settings;
         this._resetPlaybackInfo();
         this._setTrack();
 
@@ -140,7 +141,6 @@ export default class AudioPlayer extends EventEmmiter {
         return this;
     }
 
-    // перемотка
     rewind(ratio) {
         if(ratio > 1 && ratio < 0) {
             throw Error('To rewind audio, ratio must be in range from 0 to 1');
@@ -224,10 +224,11 @@ export default class AudioPlayer extends EventEmmiter {
         this._ctx = new (window.AudioContext || window.webkitAudioContext)();
         this._dest = this._ctx.destination;
         this._gain = this._ctx.createGain();
-        this._equalizer = new Equalizer(this._ctx);
+        this._equalizer = this.settings.equalizer ? new Equalizer(this._ctx) : null;
         return this;
     }
 
+    // TODO: Переделать чтобы связывалось в зависимости от настроек
     _connectNodes() {
         const source = this._playback.source;
         const filters = this._equalizer.filters;

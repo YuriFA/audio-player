@@ -5,24 +5,30 @@ export default class DOMBuilder {
         throw new Error('This is static class. Creating instances is forbidden.');
     }
 
-    static createElement(tagName, attrs=null, callback=null) {
+    static createElement(tagName, { attrs, callback, parent }) {
         const element = document.createElement(`${tagName}`);
 
-        if (attrs) {
-            DOMBuilder._insertAttributes(element, attrs);
+        if(attrs) {
+            DOMBuilder.insertAttributes(element, attrs);
         }
         
-        if (callback) {
+        if(callback) {
             callback(element);
+        }
+
+        if(parent instanceof HTMLElement) {
+            parent.appendChild(element);
         }
 
         return element;
     }
 
-    static _insertAttributes(element, attrs) {
-        for (var prop in attrs) {
-            if (attrs.hasOwnProperty(prop)) {
-                element.setAttribute(prop, attrs[prop]);
+    static insertAttributes(element, attrs) {
+        if(element instanceof HTMLElement){
+            for (var prop in attrs) {
+                if (attrs.hasOwnProperty(prop)) {
+                    element.setAttribute(prop, attrs[prop]);
+                }
             }
         }
     }

@@ -30,19 +30,16 @@
         width: 100%;
         background-color: #eee;
         cursor: pointer;
-        div {
-            height: 100%;
-            width: 0;
+        .slider-horiz__track {
             position: absolute;
+            height: 100%;
+            width: 100%;
+            border-radius: 0;
             top: 0;
-        }
-        .progress__buffer {
-            background-color: #a5a5a5;
-            z-index: 2;
-        }
-        .progress__line {
-            z-index: 3;
-            background-color: #25A611;
+            margin: 0;
+            .slider-horiz__filled {
+                height: 100%;
+            }
         }
     }
 }
@@ -191,7 +188,7 @@
             height: 6px;
             border-radius: 3px;
             background-color: #25A611;
-            .slider-horiz__drag {
+            .slider-horiz__handle {
                 box-sizing: border-box;
                 display: block;
                 position: absolute;
@@ -231,7 +228,7 @@
             height: 0%;
             border-radius: 3px;
             background-color: #25A611;
-            .slider-vert__drag {
+            .slider-vert__handle {
                 box-sizing: border-box;
                 display: block;
                 position: absolute;

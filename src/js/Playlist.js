@@ -31,11 +31,11 @@ export default class Playlist {
     addTrackList(list) {
         list.forEach((track, i) => {
             if(typeof track === 'string') {
-                console.log('str', track);
+                // console.log('str', track);
                 this.addTrack(i, track);
             } else if(typeof track === 'object') {
                 const { src, name } = track;
-                console.log('obj', src, name);
+                // console.log('obj', src, name);
                 this.addTrack(i, src, name);
             }
         });

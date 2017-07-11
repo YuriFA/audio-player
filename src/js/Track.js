@@ -36,7 +36,7 @@ export default class Track extends EventEmmiter{
     load() {
         this._audio.crossOrigin = "anonymous";
         this._audio.src = this._src;
-
+        this._audio.load();
         return this;
     }
 
