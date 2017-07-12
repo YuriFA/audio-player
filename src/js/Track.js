@@ -8,7 +8,6 @@ export default class Track extends EventEmmiter{
         this.id = id;
         this._src = src;
         this._name = name;
-        this._buffer = null;
         this._audio = new Audio();
         this._bindEvents();
     }

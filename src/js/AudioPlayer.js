@@ -4,6 +4,7 @@ import Playlist from './Playlist';
 import Track from './Track';
 import EventEmmiter from './utils/EventEmmiter';
 import Equalizer from './Equalizer';
+import Analyser from './Analyser';
 
 export default class AudioPlayer extends EventEmmiter {
     constructor(tracks=[], settings = {}) {
@@ -12,8 +13,8 @@ export default class AudioPlayer extends EventEmmiter {
         this.playlist = new Playlist(tracks);
         this.muted = false;
         this.currentTrackIndex = 0;
-        this._playback = {}
         this.settings = settings;
+        this._playback = {}
         this._resetPlaybackInfo();
         this._setTrack();
 
@@ -21,6 +22,7 @@ export default class AudioPlayer extends EventEmmiter {
         this._ctx = null;
         this._gain = null;
         this._equalizer = null;
+        this._analyser = null;
         this._createAudioApiNodes();
     }
 
@@ -30,6 +32,14 @@ export default class AudioPlayer extends EventEmmiter {
     
     get volume() {
         return this._gain.gain.value;
+    }
+
+    get equalizer() {
+        return this._equalizer;
+    }
+
+    get analyser() {
+        return this._analyser;
     }
 
     set volume(value) {
@@ -155,18 +165,6 @@ export default class AudioPlayer extends EventEmmiter {
         return this;
     }
 
-    changeEqualizerFilterGain(id, value) {
-        if(this._equalizer) {
-            this._equalizer.changeFilterGain(id, value);
-        }
-
-        return this;
-    }
-
-    getEqualizerFilterGain(id) {
-        return this._equalizer ? this._equalizer.getFilterGain(id) : null;
-    }
-
     _setTrack() {
         if(this.isPlaying) {
             return this;
@@ -225,20 +223,27 @@ export default class AudioPlayer extends EventEmmiter {
         this._dest = this._ctx.destination;
         this._gain = this._ctx.createGain();
         this._equalizer = this.settings.equalizer ? new Equalizer(this._ctx) : null;
+        this._analyser = this.settings.analyser ? new Analyser(this._ctx) : null;
         return this;
     }
 
-    // TODO: Переделать чтобы связывалось в зависимости от настроек
     _connectNodes() {
-        const source = this._playback.source;
-        const filters = this._equalizer.filters;
-        if(!(source instanceof MediaElementAudioSourceNode)) {
-            throw Error('Source node is undefined or source !== MediaElementAudioSourceNode');
-        }
+        const filters = this._equalizer ? this._equalizer.filters : [];
+        const analyser = this._analyser ? this._equalizer.analyser : null;
+        let toConnectNodes = [
+            this._playback.source,
+            ...filters,
+            this._gain,
+            analyser,
+            this._dest
+        ].filter(n => n);
 
-        source.connect(filters[0]);
-        filters[filters.length - 1].connect(this._gain);
-        this._gain.connect(this._dest);
+        toConnectNodes.reduce((prev, curr) => {
+            if(prev instanceof AudioNode && curr instanceof AudioNode) {
+                prev.connect(curr);
+            }
+            return curr;
+        });
 
         return this;
     }

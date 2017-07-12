@@ -70,8 +70,9 @@ const FREQS = [60, 170, 310, 600, 1000, 3000, 6000, 12000, 14000, 16000];
 
 export default class Equalizer {
     constructor(context) {
-        this.context = context;
         this.filters = [];
+        this.presets = PRESETS;
+        this._context = context;
         this._frequencies = FREQS;
         this._createFilters();
     }
@@ -94,7 +95,7 @@ export default class Equalizer {
     }
 
     _createFilter(frequency) {
-        const filter = this.context.createBiquadFilter();
+        const filter = this._context.createBiquadFilter();
 
         filter.type = 'peaking';
         filter.frequency.value = frequency;

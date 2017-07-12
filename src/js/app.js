@@ -3,7 +3,6 @@ import Playlist from './Playlist';
 import DOMBuidler from './utils/DOMBuilder';
 import RangeSlider from './utils/RangeSlider';
 
-const playerNode = document.getElementById("player");
 const playBtn = document.querySelector('.player-controls__btn_play');
 const playNextBtn = document.querySelector('.player-controls__btn_next');
 const playPrevBtn = document.querySelector('.player-controls__btn_prev');
@@ -13,7 +12,6 @@ const volumeSliderNode = document.querySelector('.volume__slider');
 
 const progressBar = document.querySelector('.progress__bar');
 
-const equalizerNode = document.querySelector('equalizer');
 const equalizerBands = document.querySelectorAll('.equalizer-band__slider');
 
 const tracks = [
@@ -25,7 +23,7 @@ const tracks = [
     // './../media/06 - Chop Suey!.mp3',
 ];
 
-const player = new AudioPlayer(tracks, { equalizer: true });
+const player = new AudioPlayer(tracks, { equalizer: true, analyser: false });
 player.volume = 0.5;
 
 // Volume settings
@@ -98,6 +96,9 @@ player.on('track:timeupdate', (e) => {
     const audio = e.target;
     const ratio = audio.currentTime / audio.duration;
     progressSlider.setValue(ratio);
+
+    // player.analyser.updateData();
+    // debugger;
 });
 
 
@@ -125,17 +126,17 @@ playPrevBtn.addEventListener('click', (e) => {
 //Equalizer settings
 equalizerBands.forEach((band, i) => {
     const bandFilled = band.querySelector('.slider-vert__filled');
-    const filterValue = player.getEqualizerFilterGain(i);
+    const filterValue = player.equalizer.getFilterGain(i);
     const bandSlider = new RangeSlider(band, {
         vertical: true,
         min: -12,
         max: 12,
         value: filterValue,
         onchange: (value) => {
-            player.changeEqualizerFilterGain(i, value);
+            player.equalizer.changeFilterGain(i, value);
         },
         onmove: (value) => {
-            player.changeEqualizerFilterGain(i, value);
+            player.equalizer.changeFilterGain(i, value);
         }
     });
 });

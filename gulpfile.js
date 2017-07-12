@@ -12,7 +12,6 @@ gulp.task('webserver', () => {
             livereload: true,
             directoryListing: true,
             open: 'index.html',
-            
         }));
 });
 
