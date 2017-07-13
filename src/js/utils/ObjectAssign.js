@@ -3,7 +3,7 @@ if (!Object.assign) {
     enumerable: false,
     configurable: true,
     writable: true,
-    value: function(target, firstSource) {
+    value: function (target, firstSource) {
       'use strict';
       if (target === undefined || target === null) {
         throw new TypeError('Cannot convert first argument to object');
@@ -26,6 +26,6 @@ if (!Object.assign) {
         }
       }
       return to;
-    }
+    },
   });
 }

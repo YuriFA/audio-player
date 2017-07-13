@@ -1,118 +1,120 @@
-"use strict";
+import { validateInRange } from './utils';
+
+const MIN_DB = -12;
+const MAX_DB = 12;
 
 const PRESETS = [
   {
-    name: "Acoustic",
+    name: 'Acoustic',
     data: [5, 5, 4, 1, 2, 2, 3, 4, 3, 2],
   }, {
-    name: "Bass Booster",
+    name: 'Bass Booster',
     data: [6, 5, 4, 3, 2, 0, 0, 0, 0, 0],
   }, {
-    name: "Bass Reducer",
+    name: 'Bass Reducer',
     data: [-6, -5, -4, -3, -2, 0, 0, 0, 0, 0],
   }, {
-    name: "Classical",
-    data: [5, 4, 3, 2, -1, -1, 0, 1, 3, 4]
+    name: 'Classical',
+    data: [5, 4, 3, 2, -1, -1, 0, 1, 3, 4],
   }, {
-    name: "Dance",
+    name: 'Dance',
     data: [4, 6, 5, 0, 2, 3, 5, 4, 3, 0],
   }, {
-    name: "Deep",
-    data: [5, 3, 2, 1, 3, 2, 1, -2, -4, -5]
+    name: 'Deep',
+    data: [5, 3, 2, 1, 3, 2, 1, -2, -4, -5],
   }, {
-    name: "Electronic",
-    data: [4, 4, 1, 0, -2, 2, 1, 2, 4, 5]
+    name: 'Electronic',
+    data: [4, 4, 1, 0, -2, 2, 1, 2, 4, 5],
   }, {
-    name: "Hip-Hop",
+    name: 'Hip-Hop',
     data: [5, 3, 1, 3, -1, -1, 1, -1, 2, 3],
   }, {
-    name: "Jazz",
+    name: 'Jazz',
     data: [4, 3, 1, 2, -1, -1, 0, 1, 3, 4],
   }, {
-    name: "Latin",
-    data: [5, 3, 0, 0, -1, -1, -1, 0, 3, 5]
+    name: 'Latin',
+    data: [5, 3, 0, 0, -1, -1, -1, 0, 3, 5],
   }, {
-    name: "Loudness",
+    name: 'Loudness',
     data: [6, 4, 0, 0, -2, 0, -1, -5, 4, 1],
   }, {
-    name: "Lounge",
+    name: 'Lounge',
     data: [-3, -2, -1, 1, 4, 3, 0, -1, 2, 1],
   }, {
-    name: "Piano",
+    name: 'Piano',
     data: [3, 2, 0, 2, 3, 1, 3, 5, 3, 4],
   }, {
-    name: "Pop",
+    name: 'Pop',
     data: [-2, -1, 0, 2, 4, 4, 2, 0, -1, -2],
   }, {
-    name: "R&B",
+    name: 'R&B',
     data: [2, 7, 6, 1, -2, -1, 2, 3, 3, 4],
   }, {
-    name: "Rock",
+    name: 'Rock',
     data: [5, 4, 3, 2, -1, -2, 0, 2, 3, 4],
   }, {
-    name: "Small Speakers",
+    name: 'Small Speakers',
     data: [5, 4, 3, 2, 1, 0, -2, -3, -4, -5],
   }, {
-    name: "Spoken Word",
+    name: 'Spoken Word',
     data: [-4, -1, 0, 1, 3, 5, 5, 4, 2, 0],
   }, {
-    name: "Treble Booster",
+    name: 'Treble Booster',
     data: [0, 0, 0, 0, 0, 1, 2, 3, 4, 5],
   }, {
-    name: "Treble Reducer",
+    name: 'Treble Reducer',
     data: [0, 0, 0, 0, 0, -1, -2, -3, -4, -5],
   }, {
-    name: "Vocal Booster",
-    data: [-1, -3, -3, 1, 4, 4, 3, 1, 0, -1]
-  }
+    name: 'Vocal Booster',
+    data: [-1, -3, -3, 1, 4, 4, 3, 1, 0, -1],
+  },
 ];
 const FREQS = [60, 170, 310, 600, 1000, 3000, 6000, 12000, 14000, 16000];
 
 export default class Equalizer {
-    constructor(context) {
-        this.filters = [];
-        this.presets = PRESETS;
-        this._context = context;
-        this._frequencies = FREQS;
-        this._createFilters();
+  constructor(context) {
+    this.filters = [];
+    this.presets = PRESETS;
+    this._context = context;
+    this._frequencies = FREQS;
+    this._createFilters();
+  }
+
+  get frequencies() {
+    return this._frequencies;
+  }
+
+  changeFilterGain(id, value) {
+    if (id in this.filters) {
+      this.filters[id].gain.value = validateInRange(value, MIN_DB, MAX_DB);
     }
 
-    get frequencies() {
-        return this._frequencies;
-    }
+    return this;
+  }
 
-    changeFilterGain(id, value) {
-        if(id in this.filters) {
-            const validValue = value > 12 ? 12 : (value < -12 ? -12 : value);
-            this.filters[id].gain.value = validValue;
-        }
+  getFilterGain(id) {
+    return id in this.filters ? this.filters[id].gain.value : null;
+  }
 
-        return this;
-    }
+  _createFilter(frequency) {
+    const filter = this._context.createBiquadFilter();
 
-    getFilterGain(id) {
-        return id in this.filters ? this.filters[id].gain.value : null;
-    }
+    filter.type = 'peaking';
+    filter.frequency.value = frequency;
+    filter.Q.value = 1; // Q-factor
+    filter.gain.value = 0;
 
-    _createFilter(frequency) {
-        const filter = this._context.createBiquadFilter();
+    return filter;
+  }
 
-        filter.type = 'peaking';
-        filter.frequency.value = frequency;
-        filter.Q.value = 1; // Q-factor
-        filter.gain.value = 0;
+  _createFilters() {
+    const filters = this._frequencies.map(this._createFilter.bind(this));
+    filters.reduce((prev, curr) => {
+      prev.connect(curr);
+      return curr;
+    });
+    this.filters = filters;
 
-        return filter;
-    }
-
-    _createFilters() {
-        const filters = this._frequencies.map(this._createFilter.bind(this));
-        filters.reduce((prev, curr) => {
-            prev.connect(curr);
-            return curr;
-        });
-        this.filters = filters;
-
-        return this;
-    }
+    return this;
+  }
 }
