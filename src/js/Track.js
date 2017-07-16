@@ -37,27 +37,14 @@ export default class Track extends EventEmmiter {
     return this;
   }
 
+  // emiting all <audio> tag events
   _bindEvents() {
-    this._audio.addEventListener('canplay', (e) => {
-      this.emit('canplay', e);
-    });
-    this._audio.addEventListener('ended', () => {
-      this.emit('ended');
-    });
-    this._audio.addEventListener('progress', (e) => {
-      this.emit('progress', e);
-    });
-    this._audio.addEventListener('loadeddata', (e) => {
-      this.emit('loadeddata', e);
-    });
-    this._audio.addEventListener('canplaythrough', (e) => {
-      this.emit('canplaythrough', e);
-    });
-    this._audio.addEventListener('loadedmetadata', (e) => {
-      this.emit('loadedmetadata', e);
-    });
-    this._audio.addEventListener('timeupdate', (e) => {
-      this.emit('timeupdate', e);
-    });
+    for (const key in this._audio) {
+      if (key.search('on') === 0) {
+        this._audio.addEventListener(key.slice(2), (event) => {
+          this.emit(key.slice(2), event);
+        });
+      }
+    }
   }
 }

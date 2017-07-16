@@ -3,27 +3,27 @@ export default class EventEmmiter {
     this._events = [];
   }
 
-  on(event, cb) {
-    if (typeof cb === 'undefined') {
+  on(event, callback) {
+    if (typeof callback === 'undefined') {
       throw Error('You must provide a callback function');
     }
 
-    if (typeof cb !== 'function') {
+    if (typeof callback !== 'function') {
       throw Error('Callback must be a function');
     }
 
     this._events[event] = this._events[event] || [];
-    this._events[event].push(cb);
+    this._events[event].push(callback);
 
     return this;
   }
 
-  off(event, cb) {
-    if (typeof cb === 'undefined') {
+  off(event, callback) {
+    if (typeof callback === 'undefined') {
       throw Error('You must provide a callback function');
     }
 
-    if (typeof cb !== 'function') {
+    if (typeof callback !== 'function') {
       throw Error('Callback must be a function');
     }
 
@@ -31,10 +31,10 @@ export default class EventEmmiter {
       throw Error('Event not found');
     }
 
-    const callbacks = this._events[event];
-    callbacks.forEach((callback, i) => {
-      if (callback.toString() === cb.toString()) {
-        callbacks.splice(i, 1);
+    const listeners = this._events[event];
+    listeners.forEach((listener, i) => {
+      if (listener.toString() === callback.toString()) {
+        listeners.splice(i, 1);
       }
     });
 
@@ -50,8 +50,8 @@ export default class EventEmmiter {
     if (typeof callbacks !== 'undefined') {
       callbacks = callbacks.slice();
 
-      callbacks.forEach((cb, i) => {
-        cb.apply(this, args);
+      callbacks.forEach((callback, i) => {
+        callback.apply(this, args);
       });
     }
 

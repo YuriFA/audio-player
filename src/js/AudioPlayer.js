@@ -75,20 +75,20 @@ export default class AudioPlayer extends EventEmmiter {
       // чет не ок
       track.on('canplay', this._startPlayback.bind(this));
       track.on('ended', this.playNext.bind(this));
-      track.on('progress', (e) => {
-        this.emit('track:progress', e);
+      track.on('progress', (event) => {
+        this.emit('track:progress', event);
       });
-      track.on('loadeddata', (e) => {
-        this.emit('track:loadeddata', e);
+      track.on('loadeddata', (event) => {
+        this.emit('track:loadeddata', event);
       });
-      track.on('canplaythrough', (e) => {
-        this.emit('track:canplaythrough', e);
+      track.on('canplaythrough', (event) => {
+        this.emit('track:canplaythrough', event);
       });
-      track.on('loadedmetadata', (e) => {
-        this.emit('track:loadedmetadata', e);
+      track.on('loadedmetadata', (event) => {
+        this.emit('track:loadedmetadata', event);
       });
-      track.on('timeupdate', (e) => {
-        this.emit('track:timeupdate', e);
+      track.on('timeupdate', (event) => {
+        this.emit('track:timeupdate', event);
       });
     }
 

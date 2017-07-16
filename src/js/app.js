@@ -48,8 +48,8 @@ const volumeSlider = new RangeSlider(volumeSliderNode, {
   onmove: setVolume,
 });
 
-volumeBtn.addEventListener('click', (e) => {
-  e.preventDefault();
+volumeBtn.addEventListener('click', (event) => {
+  event.preventDefault();
   const icon = volumeBtn.children[0];
   if (player.muted) {
     player.unmute();
@@ -61,9 +61,9 @@ volumeBtn.addEventListener('click', (e) => {
 });
 
 // MouseScroll event handler to control the volume
-const onwheelHandler = (e) => {
-  e.preventDefault();
-  const newValue = player.volume + (Math.sign(e.wheelDeltaY) * 0.05);
+const onwheelHandler = (event) => {
+  event.preventDefault();
+  const newValue = player.volume + (Math.sign(event.wheelDeltaY) * 0.05);
   volumeSlider.setValue(newValue);
   player.volume = newValue;
 };
@@ -80,8 +80,8 @@ const progressSlider = new RangeSlider(progressBar, {
   },
 });
 
-const updateBuffer = (e) => {
-  const audio = e.target;
+const updateBuffer = (event) => {
+  const audio = event.target;
   const buffered = audio.buffered;
   const buffRatio = buffered.length ? buffered.end(buffered.length - 1) / audio.duration : 0;
 
@@ -91,8 +91,8 @@ const updateBuffer = (e) => {
 player.on('track:progress', updateBuffer);
 player.on('track:loadeddata', updateBuffer);
 player.on('track:canplaythrough', updateBuffer);
-player.on('track:timeupdate', (e) => {
-  const audio = e.target;
+player.on('track:timeupdate', (event) => {
+  const audio = event.target;
   const ratio = audio.currentTime / audio.duration;
   progressSlider.setValue(ratio);
 });

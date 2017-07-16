@@ -84,14 +84,14 @@ export default class RangeSlider {
     return this;
   }
 
-  _updateValue(e) {
+  _updateValue(event) {
     const pos = this.node.getBoundingClientRect();
 
     let ratio = null;
     if (this.vertical) {
-      ratio = 1 - ((e.clientY - pos.top) / this.node.offsetHeight);
+      ratio = 1 - ((event.clientY - pos.top) / this.node.offsetHeight);
     } else {
-      ratio = (e.clientX - pos.left) / this.node.offsetWidth;
+      ratio = (event.clientX - pos.left) / this.node.offsetWidth;
     }
 
     this.setValueByRatio(ratio);
@@ -100,16 +100,16 @@ export default class RangeSlider {
   }
 
   _bindEvents() {
-    this.node.addEventListener('mousedown', (e) => {
-      if (e.which === 1) { // left mouse button
+    this.node.addEventListener('mousedown', (event) => {
+      if (event.which === 1) { // left mouse button
         this.draggable = true;
-        this._updateValue(e);
+        this._updateValue(event);
       }
     });
 
-    document.addEventListener('mousemove', (e) => {
+    document.addEventListener('mousemove', (event) => {
       if (this.draggable) {
-        this._updateValue(e);
+        this._updateValue(event);
 
         if (isFunction(this.onmove)) {
           this.onmove(this.value);
@@ -117,10 +117,10 @@ export default class RangeSlider {
       }
     });
 
-    document.addEventListener('mouseup', (e) => {
+    document.addEventListener('mouseup', (event) => {
       if (this.draggable) {
         this.draggable = false;
-        this._updateValue(e);
+        this._updateValue(event);
 
         if (isFunction(this.onchange)) {
           this.onchange(this.value);
