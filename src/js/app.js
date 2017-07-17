@@ -10,6 +10,8 @@ const volumeSliderNode = document.querySelector('.volume__slider');
 
 const progressBar = document.querySelector('.progress__bar');
 
+const equalizerBtn = document.querySelector('.player-controls__btn_equalizer');
+const equalizerPopup = document.querySelector('.equalizer-popup');
 const equalizerBands = document.querySelectorAll('.equalizer-band__slider');
 
 const tracks = [
@@ -61,15 +63,15 @@ volumeBtn.addEventListener('click', (event) => {
 });
 
 // MouseScroll event handler to control the volume
-const onwheelHandler = (event) => {
+const onwheelUpdateVolume = (event) => {
   event.preventDefault();
   const newValue = player.volume + (Math.sign(event.wheelDeltaY) * 0.05);
   volumeSlider.setValue(newValue);
-  player.volume = newValue;
+  setVolume(newValue);
 };
 
-volumeBtn.addEventListener('wheel', onwheelHandler);
-volumeSliderNode.addEventListener('wheel', onwheelHandler);
+volumeBtn.addEventListener('wheel', onwheelUpdateVolume);
+volumeSliderNode.addEventListener('wheel', onwheelUpdateVolume);
 
 // Progress settings
 const progressSlider = new RangeSlider(progressBar, {
@@ -120,6 +122,11 @@ playPrevBtn.addEventListener('click', () => {
 });
 
 // Equalizer settings
+equalizerBtn.addEventListener('click', (event) => {
+  event.preventDefault();
+  equalizerPopup.classList.toggle('equalizer-popup__open');
+});
+
 equalizerBands.forEach((band, i) => {
   const filterValue = player.equalizer.getFilterGain(i);
   const bandSlider = new RangeSlider(band, {

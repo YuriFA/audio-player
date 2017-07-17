@@ -42,23 +42,12 @@
      id="namedview3830"
      showgrid="false"
      inkscape:zoom="9.8333333"
-     inkscape:cx="12"
+     inkscape:cx="-14.745763"
      inkscape:cy="12"
      inkscape:window-x="0"
      inkscape:window-y="30"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg3828" />
-  <path
-     d="M0 5v14l11-7z"
-     id="path3822" />
-  <path
-     d="M11 5v14l11-7z"
-     id="path3824" />
-  <path
-     clip-rule="evenodd"
-     fill-rule="evenodd"
-     d="M22 6h2v12h-2z"
-     id="path3826" />
   <path
      style="fill:#ffffff;stroke-width:0.10169491"
      d="M 0,11.986862 V 5.0581569 l 0.53389831,0.3408802 c 0.29364406,0.1874841 2.68474579,1.7060036 5.31355929,3.3744878 2.6288136,1.6684841 4.8337494,3.0838671 4.8998574,3.1452961 0.08947,0.08314 -1.1672155,0.930525 -4.9163096,3.315077 -2.770078,1.761865 -5.21526797,3.311003 -5.43375545,3.44253 L 0,18.915567 Z"
