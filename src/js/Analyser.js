@@ -27,9 +27,9 @@ export default class Analyser {
     this.analyser.getFloatFrequencyData(this.fFrequencyData);
     this.analyser.getByteFrequencyData(this.bFrequencyData);
     this.analyser.getByteTimeDomainData(this.bTimeData);
-    console.log(this.fFrequencyData);
-    console.log(this.bFrequencyData);
-    console.log(this.bTimeData);
+    // console.log(this.fFrequencyData);
+    // console.log(this.bFrequencyData);
+    // console.log(this.bTimeData);
 
     return this;
   }

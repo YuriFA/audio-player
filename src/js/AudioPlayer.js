@@ -230,7 +230,8 @@ export default class AudioPlayer extends EventEmmiter {
 
   _connectNodes() {
     const filters = this._equalizer ? this._equalizer.filters : [];
-    const analyser = this._analyser ? this._equalizer.analyser : null;
+    const analyser = this._analyser ? this._analyser.analyser : null;
+    console.log(analyser);
     const toConnectNodes = [
       this._playback.source,
       ...filters,

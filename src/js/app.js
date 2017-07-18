@@ -14,6 +14,8 @@ const equalizerBtn = document.querySelector('.player-controls__btn_equalizer');
 const equalizerPopup = document.querySelector('.equalizer-popup');
 const equalizerBands = document.querySelectorAll('.equalizer-band__slider');
 
+const visualizerCanvas = document.querySelector('#visualizer');
+
 const tracks = [
   'http://freshly-ground.com/data/audio/mpc/20090207%20-%20Loverman.mp3',
   './../media/02 - Needles.mp3',
@@ -23,7 +25,7 @@ const tracks = [
   './../media/06 - Chop Suey!.mp3',
 ];
 
-const player = new AudioPlayer(tracks, { equalizer: true, analyser: false });
+const player = new AudioPlayer(tracks, { equalizer: true, analyser: true });
 player.volume = 0.5;
 
 // Volume settings
@@ -105,6 +107,7 @@ playBtn.addEventListener('click', () => {
   if (!player.isPlaying) {
     playBtn.classList.add('player-controls__btn_pause');
     player.play();
+    visualize();
   } else {
     playBtn.classList.remove('player-controls__btn_pause');
     player.pause();
@@ -142,3 +145,45 @@ equalizerBands.forEach((band, i) => {
     },
   });
 });
+
+// Visualize
+const canvasContext = visualizerCanvas.getContext('2d');
+const { width, height } = visualizerCanvas;
+const columnWidth = 15;
+const marginWidth = 5;
+const sectionWidth = columnWidth + marginWidth;
+const columnCount = width / sectionWidth;
+
+// console.log(analyser.bFrequencyData);
+
+const visualize = () => {
+  const analyser = player.analyser;
+  let animationId;
+  const draw = () => {
+    canvasContext.clearRect(0, 0, width, height);
+    analyser.updateData();
+    const frequencyData = analyser.bFrequencyData;
+    const step = Math.round(frequencyData.length / columnCount);
+
+    for (let i = 0; i < columnCount; i += 1) {
+      const frequencyValue = frequencyData[i * step];
+      canvasContext.fillRect(
+        (i * sectionWidth),
+        (height - frequencyValue),
+        columnWidth,
+        frequencyValue);
+    }
+    if (!player.isPlaying) {
+      cancelAnimationFrame(animationId);
+    }
+    animationId = requestAnimationFrame(draw);
+  };
+  if (!animationId) {
+    animationId = requestAnimationFrame(draw);
+  }
+};
+
+console.log(canvasContext);
+// canvasContext.clearRect(45, 45, 60, 60);
+// canvasContext.strokeRect(50, 50, 50, 50);
+
