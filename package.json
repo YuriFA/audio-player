@@ -28,7 +28,17 @@
     "gulp": "^3.9.1",
     "gulp-autoprefixer": "^4.0.0",
     "gulp-browserify": "^0.5.1",
+    "gulp-clean-css": "^3.7.0",
+    "gulp-html-prettify": "0.0.1",
+    "gulp-plumber": "^1.1.0",
+    "gulp-rename": "^1.2.2",
     "gulp-sass": "^3.1.0",
-    "gulp-webserver": "^0.9.1"
+    "gulp-uglify": "^3.0.0",
+    "gulp-watch": "^4.3.11",
+    "require-dir": "^0.3.2",
+    "run-sequence": "^2.0.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-paths": "^2.1.0",
+    "vinyl-source-stream": "^1.1.0"
   }
 }
