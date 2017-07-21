@@ -18,10 +18,10 @@ const visualizerCanvas = document.querySelector('#visualizer');
 
 const tracks = [
   'http://freshly-ground.com/data/audio/mpc/20090207%20-%20Loverman.mp3',
-  './../media/Alex_Cohen_-_Good_Old_Times.mp3',
-  './../media/RogerThat_-_Beautiful_Wonderful_Life.mp3',
-  './../media/RogerThat_-_Lucky_Day.mp3',
-  './../media/Roller_Genoa_-_Build_My_Gallows_High.mp3',
+  './assets/media/Alex_Cohen_-_Good_Old_Times.mp3',
+  './assets/media/RogerThat_-_Beautiful_Wonderful_Life.mp3',
+  './assets/media/RogerThat_-_Lucky_Day.mp3',
+  './assets/media/Roller_Genoa_-_Build_My_Gallows_High.mp3',
 ];
 
 const player = new AudioPlayer(tracks, { equalizer: true, analyser: true });
