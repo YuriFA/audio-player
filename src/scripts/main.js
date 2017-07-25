@@ -1,5 +1,6 @@
 import AudioPlayer from './AudioPlayer';
 import RangeSlider from './utils/RangeSlider';
+import { roundedRect, validateInRange } from './utils';
 
 const playBtn = document.querySelector('.player-controls__btn_play');
 const playNextBtn = document.querySelector('.player-controls__btn_next');
@@ -148,10 +149,16 @@ equalizerBands.forEach((band, i) => {
 // Visualize
 const canvasContext = visualizerCanvas.getContext('2d');
 const { width, height } = visualizerCanvas;
-const columnWidth = 15;
-const marginWidth = 5;
+const columnWidth = 10;
+const marginWidth = 7;
 const sectionWidth = columnWidth + marginWidth;
 const columnCount = width / sectionWidth;
+const columnRadius = 5;
+
+const yAxisOffset = 200;
+const minValue = 15;
+const scale = 0.5;
+const mirrorScale = 0.5;
 
 // console.log(analyser.bFrequencyData);
 
@@ -165,12 +172,17 @@ const visualize = () => {
     const step = Math.round(frequencyData.length / columnCount);
 
     for (let i = 0; i < columnCount; i += 1) {
-      const frequencyValue = frequencyData[i * step];
-      canvasContext.fillRect(
-        (i * sectionWidth),
-        (height - frequencyValue),
-        columnWidth,
-        frequencyValue);
+      const frequencyValue = minValue + (frequencyData[i * step] * scale);
+      roundedRect({
+        ctx: canvasContext,
+        x: (i * sectionWidth),
+        y: (height - yAxisOffset - frequencyValue),
+        width: columnWidth,
+        height: frequencyValue * (1 + mirrorScale),
+        radius: columnRadius,
+        fill: true,
+        stroke: true,
+      });
     }
     if (!player.isPlaying) {
       cancelAnimationFrame(animationId);

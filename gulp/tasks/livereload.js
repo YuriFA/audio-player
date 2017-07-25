@@ -4,6 +4,7 @@ import gutil from 'gulp-util';
 import paths from '../paths';
 
 gulp.task('livereload', () => {
+  console.log(gutil.env);
   browserSync.init({
     files: [`${paths.baseDist}/**/*`],
     open: !!gutil.env.open,
@@ -17,5 +18,6 @@ gulp.task('livereload', () => {
       directory: false,
     },
     tunnel: !!gutil.env.tunnel,
+    online: !gutil.env.offline,
   });
 });
