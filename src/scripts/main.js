@@ -1,6 +1,6 @@
 import AudioPlayer from './AudioPlayer';
 import RangeSlider from './utils/RangeSlider';
-import { roundedRect, validateInRange } from './utils';
+import { roundedRect, validateInRange, calcPolarCoords } from './utils';
 
 const playBtn = document.querySelector('.player-controls__btn_play');
 const playNextBtn = document.querySelector('.player-controls__btn_next');
@@ -16,8 +16,13 @@ const equalizerPopup = document.querySelector('.equalizer-popup');
 const equalizerBands = document.querySelectorAll('.equalizer-band__slider');
 
 const visualizerCanvas = document.querySelector('#visualizer');
+visualizerCanvas.width = document.body.clientWidth;
+
+
+const showFreqBtn = document.querySelector('.show_frequency');
 
 const tracks = [
+  'https://singles2017.s3.amazonaws.com/uploads/file1496417854957.mp3',
   'http://freshly-ground.com/data/audio/mpc/20090207%20-%20Loverman.mp3',
   './assets/media/Alex_Cohen_-_Good_Old_Times.mp3',
   './assets/media/RogerThat_-_Beautiful_Wonderful_Life.mp3',
@@ -27,6 +32,12 @@ const tracks = [
 
 const player = new AudioPlayer(tracks, { equalizer: true, analyser: true });
 player.volume = 0.5;
+
+
+showFreqBtn.addEventListener('click', (event) => {
+  const freq = player.analyser.updateData().bTimeData.slice();
+  console.log(freq);
+});
 
 // Volume settings
 const setVolume = (value) => {
@@ -147,43 +158,114 @@ equalizerBands.forEach((band, i) => {
 });
 
 // Visualize
-const canvasContext = visualizerCanvas.getContext('2d');
-const { width, height } = visualizerCanvas;
-const columnWidth = 10;
-const marginWidth = 7;
-const sectionWidth = columnWidth + marginWidth;
-const columnCount = width / sectionWidth;
-const columnRadius = 5;
+const ctx = visualizerCanvas.getContext('2d');
 
-const yAxisOffset = 200;
-const minValue = 15;
-const scale = 0.5;
+ctx.beginPath();
+ctx.strokeStyle = '#FF0000';
+ctx.lineWidth = 0.5;
+
+// const r = 100;
+// const centerX = 200;
+// const centerY = 200;
+
+// ctx.moveTo(centerX, centerY);
+
+// for (let i = 0; i < 360; i += 1) {
+//   const radAngle = (i * Math.PI) / 180;
+//   const position = calcPolarCoords(r + 10, radAngle);
+//   if (i === 60) {
+//     ctx.strokeStyle = '#00FF00';
+//     ctx.lineTo(centerX + position.x, centerY + position.y);
+//     ctx.strokeStyle = '#FF0000';
+//   } else {
+//     ctx.lineTo(centerX + position.x, centerY + position.y);
+//   }
+// }
+
+// (function myLoop(i) {
+//   setTimeout(function () {
+//     const radAngle = (i * Math.PI) / 180;
+//     const position = calcPolarCoords(r + 10, radAngle);
+//     if (i === 60) {
+//       ctx.strokeStyle = '#00FF00';
+//       ctx.lineTo(centerX + position.x, centerY + position.y);
+//       ctx.strokeStyle = '#FF0000';
+//     } else {
+//       ctx.lineTo(centerX + position.x, centerY + position.y);
+//     }
+//     console.log(i);
+
+//     ctx.stroke();
+//     if (--i) {
+//       myLoop(i);
+//     }
+//   }, 10);
+// })(360);
+
+ctx.stroke();
+
+ctx.strokeStyle = '#FFFFFF';
+ctx.fillStyle = '#FFFFFF';
+ctx.lineJoin = 'round';
+const { width, height } = visualizerCanvas;
+const columnWidth = 1;
+const marginWidth = 1;
+const sectionWidth = columnWidth + marginWidth;
+const columnRadius = 3;
+
+const yAxisOffset = 100;
+const yAxisStart = height - yAxisOffset;
+const sideOffset = 200;
+const scale = 1;
 const mirrorScale = 0.5;
 
-// console.log(analyser.bFrequencyData);
+const columnCount = width / sectionWidth;
 
 const visualize = () => {
   const analyser = player.analyser;
+  // const length = analyser.analyser.frequencyBinCount;
+  // const fftSize = analyser.analyser.fftSize;
+  const {
+    fftSize,
+    minDecibels: minDb,
+    maxDecibels: maxDb,
+    frequencyBinCount: length,
+  } = analyser.analyser;
+
+  const r = 200;
+  const centerX = (width / 2) - r;
+  const centerY = 300;
+
+  const step = 360 / (length - 1);
+
   let animationId;
   const draw = () => {
-    canvasContext.clearRect(0, 0, width, height);
-    analyser.updateData();
-    const frequencyData = analyser.bFrequencyData;
-    const step = Math.round(frequencyData.length / columnCount);
+    ctx.clearRect(0, 0, width, height);
+    const frequencyData = analyser.updateData().fFrequencyData;
 
-    for (let i = 0; i < columnCount; i += 1) {
-      const frequencyValue = minValue + (frequencyData[i * step] * scale);
-      roundedRect({
-        ctx: canvasContext,
-        x: (i * sectionWidth),
-        y: (height - yAxisOffset - frequencyValue),
-        width: columnWidth,
-        height: frequencyValue * (1 + mirrorScale),
-        radius: columnRadius,
-        fill: true,
-        stroke: true,
-      });
+    ctx.beginPath();
+    // ctx.moveTo(0, yAxisStart);
+    // for (let i = 0; i < length; i += 1) {
+    //   ctx.lineTo(
+    //     (i / length) * width,
+    //     yAxisStart - frequencyData[i]);
+    // }
+    let startPosition;
+    for (let i = 0; i < length; i += 1) {
+      const angle = 360 - (i * step);
+      const radAngle = (angle * Math.PI) / 180;
+      const position = calcPolarCoords(r + frequencyData[i], radAngle);
+      if (i === 0) {
+        startPosition = position;
+      }
+      // ctx.fillRect(centerX + position.x, centerY + position.y, 2, 2);
+      ctx.lineTo(centerX + position.x, centerY + position.y);
     }
+
+    ctx.lineTo(centerX + startPosition.x, centerY + startPosition.y)
+    ctx.fill();
+    ctx.stroke();
+
     if (!player.isPlaying) {
       cancelAnimationFrame(animationId);
     }
@@ -193,8 +275,3 @@ const visualize = () => {
     animationId = requestAnimationFrame(draw);
   }
 };
-
-console.log(canvasContext);
-// canvasContext.clearRect(45, 45, 60, 60);
-// canvasContext.strokeRect(50, 50, 50, 50);
-

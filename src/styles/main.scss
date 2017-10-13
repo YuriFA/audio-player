@@ -10,6 +10,7 @@
 
 body {
   overflow: hidden;
+  background-color: $dark_grey;
 }
 
 .audio_player {
@@ -17,7 +18,6 @@ body {
   height: 100vh;
   margin-left: auto;
   margin-right: auto;
-  background-color: $dark_grey;
   overflow: hidden;
 }
 
@@ -232,4 +232,9 @@ body {
 
 .slider-vert {
   @include slider('vert', $grey, $light_blue, $medium_grey);
+}
+
+#visualizer {
+  display: block;
+  margin: 0 auto;
 }
