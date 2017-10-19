@@ -10,7 +10,7 @@
 
 body {
   overflow: hidden;
-  background-color: $dark_grey;
+  background-color: $bg_color;
 }
 
 .audio_player {
@@ -26,7 +26,6 @@ body {
   bottom: 0;
   width: 100%;
   height: 60px;
-  background-color: $dark_grey;
   user-select: none;
 }
 
@@ -153,7 +152,7 @@ body {
   bottom: 60px;
   max-height: 0;
   border: none;
-  background-color: $dark_grey;
+  background-color: $bg_color;
   color: #FFFFFF;
   overflow: hidden;
   user-select: none;
@@ -161,7 +160,7 @@ body {
   &.equalizer-popup__open {
     max-height: 500px;
     overflow: visible;
-    border: 1px solid $light_blue;
+    border: 1px solid $red;
     transition: max-height .3s;
     box-shadow: 0 15px 30px rgba(0,0,0,0.2);
   }
@@ -174,7 +173,7 @@ body {
     width: 0;
     height: 0;
     border-width: 10px 9px 0 9px;
-    border-color: $light_blue transparent transparent transparent;
+    border-color: $red transparent transparent transparent;
     border-style: solid;
   }
 }
@@ -227,11 +226,11 @@ body {
 
 
 .slider-horiz {
-  @include slider('horiz', $grey, $light_blue, $medium_grey);
+  @include slider('horiz', $grey, $red, $medium_grey);
 }
 
 .slider-vert {
-  @include slider('vert', $grey, $light_blue, $medium_grey);
+  @include slider('vert', $grey, $red, $medium_grey);
 }
 
 #visualizer {

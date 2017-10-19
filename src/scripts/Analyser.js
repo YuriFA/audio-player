@@ -1,5 +1,5 @@
 export default class Analyser {
-  constructor(context, fftSize = 256) {
+  constructor(context, fftSize = 2048) {
     this.analyser = null;
     this.fFrequencyData = null;
     this.bFrequencyData = null;
