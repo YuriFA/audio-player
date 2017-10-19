@@ -28,6 +28,10 @@ export default class AudioPlayer extends EventEmmiter {
     return this._playback.playing;
   }
 
+  get isPaused() {
+    return this._playback.track && this._playback.track.paused;
+  }
+
   get volume() {
     return this._gain.gain.value;
   }
@@ -109,7 +113,6 @@ export default class AudioPlayer extends EventEmmiter {
     const track = this._playback.track;
     track.audio.pause();
     console.log('PAUSED');
-
     return this;
   }
 

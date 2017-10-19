@@ -22,6 +22,7 @@ visualizerCanvas.width = document.body.clientWidth;
 const showFreqBtn = document.querySelector('.show_frequency');
 
 const tracks = [
+  'https://singles2017.s3.amazonaws.com/uploads/file1499697873293.mp3',
   'https://singles2017.s3.amazonaws.com/uploads/file1496417854957.mp3',
   'http://freshly-ground.com/data/audio/mpc/20090207%20-%20Loverman.mp3',
   './assets/media/Alex_Cohen_-_Good_Old_Times.mp3',
@@ -31,11 +32,11 @@ const tracks = [
 ];
 
 const player = new AudioPlayer(tracks, { equalizer: true, analyser: true });
-player.volume = 0.5;
+player.volume = 0.1;
 
 
 showFreqBtn.addEventListener('click', (event) => {
-  const freq = player.analyser.updateData().bTimeData.slice();
+  const freq = player.analyser.updateData().fFrequencyData.slice();
   console.log(freq);
 });
 
@@ -160,53 +161,11 @@ equalizerBands.forEach((band, i) => {
 // Visualize
 const ctx = visualizerCanvas.getContext('2d');
 
-ctx.beginPath();
-ctx.strokeStyle = '#FF0000';
-ctx.lineWidth = 0.5;
-
-// const r = 100;
-// const centerX = 200;
-// const centerY = 200;
-
-// ctx.moveTo(centerX, centerY);
-
-// for (let i = 0; i < 360; i += 1) {
-//   const radAngle = (i * Math.PI) / 180;
-//   const position = calcPolarCoords(r + 10, radAngle);
-//   if (i === 60) {
-//     ctx.strokeStyle = '#00FF00';
-//     ctx.lineTo(centerX + position.x, centerY + position.y);
-//     ctx.strokeStyle = '#FF0000';
-//   } else {
-//     ctx.lineTo(centerX + position.x, centerY + position.y);
-//   }
-// }
-
-// (function myLoop(i) {
-//   setTimeout(function () {
-//     const radAngle = (i * Math.PI) / 180;
-//     const position = calcPolarCoords(r + 10, radAngle);
-//     if (i === 60) {
-//       ctx.strokeStyle = '#00FF00';
-//       ctx.lineTo(centerX + position.x, centerY + position.y);
-//       ctx.strokeStyle = '#FF0000';
-//     } else {
-//       ctx.lineTo(centerX + position.x, centerY + position.y);
-//     }
-//     console.log(i);
-
-//     ctx.stroke();
-//     if (--i) {
-//       myLoop(i);
-//     }
-//   }, 10);
-// })(360);
-
-ctx.stroke();
-
 ctx.strokeStyle = '#FFFFFF';
 ctx.fillStyle = '#FFFFFF';
 ctx.lineJoin = 'round';
+ctx.lineWidth = 2;
+
 const { width, height } = visualizerCanvas;
 const columnWidth = 1;
 const marginWidth = 1;
@@ -232,11 +191,16 @@ const visualize = () => {
     frequencyBinCount: length,
   } = analyser.analyser;
 
-  const r = 200;
+  const r = 150;
   const centerX = (width / 2) - r;
   const centerY = 300;
 
-  const step = 360 / (length - 1);
+  const step = 180 / (length - 1);
+
+  const sinFrequencyA = 5;
+  const sinFrequencyB = 5;
+  const sinAmplitudeA = 3;
+  const sinAmplitudeB = 5;
 
   let animationId;
   const draw = () => {
@@ -244,29 +208,29 @@ const visualize = () => {
     const frequencyData = analyser.updateData().fFrequencyData;
 
     ctx.beginPath();
-    // ctx.moveTo(0, yAxisStart);
-    // for (let i = 0; i < length; i += 1) {
-    //   ctx.lineTo(
-    //     (i / length) * width,
-    //     yAxisStart - frequencyData[i]);
-    // }
-    let startPosition;
+
     for (let i = 0; i < length; i += 1) {
-      const angle = 360 - (i * step);
-      const radAngle = (angle * Math.PI) / 180;
-      const position = calcPolarCoords(r + frequencyData[i], radAngle);
-      if (i === 0) {
-        startPosition = position;
-      }
-      // ctx.fillRect(centerX + position.x, centerY + position.y, 2, 2);
+      const angle = (i * step * Math.PI) / 180;
+      const radius = r + ((frequencyData[i] + i) * 0.5);
+      const radiusOffset = (Math.sin(angle * sinFrequencyA) * sinAmplitudeA) + (Math.sin(angle * sinFrequencyB) * sinAmplitudeB);
+      const position = calcPolarCoords(radius + radiusOffset, angle);
+
       ctx.lineTo(centerX + position.x, centerY + position.y);
     }
 
-    ctx.lineTo(centerX + startPosition.x, centerY + startPosition.y)
-    ctx.fill();
+    for (let i = length - 1; i >= 0; i -= 1) {
+      const angle = ((360 - (i * step)) * Math.PI) / 180;
+      const radius = r + ((frequencyData[i] + i) * 0.5);
+      const radiusOffset = (Math.sin(angle * sinFrequencyA) * sinAmplitudeA) + (Math.sin(angle * sinFrequencyB) * sinAmplitudeB);
+      const position = calcPolarCoords(radius + radiusOffset, angle);
+
+      ctx.lineTo(centerX + position.x, centerY + position.y);
+    }
+
+    // ctx.fill();
     ctx.stroke();
 
-    if (!player.isPlaying) {
+    if (!player.isPaused) {
       cancelAnimationFrame(animationId);
     }
     animationId = requestAnimationFrame(draw);
